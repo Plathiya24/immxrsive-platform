@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImmXrsive Phase 0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>ImmXrsive Phase 0</h1>
+
+        <p>Production Pipeline Demo</p>
+
+        <div class="status-box">
+            <strong>Backend Status:</strong>
+            <span id="backend-status">Checking...</span>
+        </div>
+
+        <hr>
+
+        <h2>Add Item</h2>
+
+        <form id="item-form">
+            <input
+                id="title"
+                type="text"
+                placeholder="Enter item title"
+            >
+
+            <button type="submit">
+                Add Item
+            </button>
+        </form>
+
+        <h2>Items</h2>
+
+        <div id="items">
+            Database will be connected next.
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
