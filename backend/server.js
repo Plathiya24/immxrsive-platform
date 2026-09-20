@@ -58,9 +58,9 @@ app.post("/items", async (req, res) => {
     try {
         const { title } = req.body;
 
-       if (typeof title !== "string" || title.length === 0) {
+if (typeof title !== "string" || title.trim().length === 0) {
     return res.status(400).json({
-        error: "Title is required"
+        error: "Title cannot be blank"
     });
 }
 
