@@ -1,3 +1,3 @@
 window.APP_CONFIG = {
-    API_URL: "http://localhost:3001"
+    API_URL: "https://immxrsive-platform.onrender.com"
 };
