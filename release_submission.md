@@ -1,26 +1,35 @@
 # Release Submission
+
 Release: R1
 Team: team-03
-Deployment: TO COMPLETE — existing service candidate https://immxrsive-platform.onrender.com/talent; new build has not been deployed by this chat.
+Deployment: https://immxrsive-platform-r7xi.onrender.com/talent
 Repository: https://github.com/Plathiya24/immxrsive-platform
-Release tag: R1-submission — pending verified deployment and release freeze
-Commit: TO COMPLETE after review and commit
+Release tag: R1-submission — pending creation and release freeze
+Commit: cd850281df994a9b8456e28203f778f477ad67bf (deployed and tested implementation; final assessed commit must be confirmed after documentation updates)
 Adapter: evaluation_adapter.json
-Known issues: Synthetic external evidence may be unavailable (P07 is intentionally broken). Intake is a simulation, saves records, and sends no email. Production PostgreSQL and deployed browser checks remain pending.
-Test notes: Run npm test from backend. See QA_CHECKLIST.md.
+Known issues: Fixture external evidence links may be unavailable; P07 is intentionally broken. Company intake is a simulation that stores inquiries and sends no email.
+Test notes: All 11 automated checks passed locally. Bikramjit confirmed the deployed mobile workflow at 390 × 844 CSS pixels and keyboard workflow passed, with no horizontal scrolling required, visible focus, correct project inquiry context, and successful synthetic inquiry submission. PostgreSQL connection setup was reported successful. Detailed scope and remaining checks are in QA_CHECKLIST.md.
 Test accounts: None; Release 1 is public.
 
 ## Release notes
-Replaced the Phase 0 items demo with searchable talent directory, structured skill/availability/status filters, public profile pages, shared project evidence, contributor roles, contextual intake, mobile layout, and keyboard-accessible controls.
+
+Replaced the Phase 0 items demo with a public talent directory, case-insensitive text search, standardized skill filters using AND, availability/status filters using OR within each category, clearable filters, student profiles, shared project pages, contributor roles, and contextual company intake. Unpublished profiles are excluded from discovery and public profile APIs. Direct profile/project routes support reloads; optional external evidence is isolated from the core workflow. The interface supports mobile layout, labeled controls, and visible keyboard focus.
 
 ## Technology and deployment summary
-Express 5 serves a plain HTML/CSS/JavaScript frontend and JSON API. PostgreSQL is used when DATABASE_URL is configured; local development uses Node's built-in SQLite with persistent storage. Fixtures seed records once; the API reads the database. Queries use bound parameters. Inquiry context is reconstructed on the backend and inquiries persist privately. Node 22.13+ is required; Node 24 is recommended. Deployment can reuse the existing Render backend with root backend, build npm ci, start npm start, persistent PostgreSQL, and PUBLIC_ORIGIN set to its HTTPS URL. No employer login or external runtime is needed. Current Chromium, Firefox and Safari are intended; browser verification is recorded separately.
+
+Express 5 serves the HTML/CSS/JavaScript frontend and JSON API from one origin. The deployed service is configured for PostgreSQL through DATABASE_URL; local development without that variable uses persistent SQLite. Fixtures seed a new database once, and application requests read persisted records. Database queries use bound parameters. The backend derives inquiry context from the canonical student or project and stores inquiries without a public listing endpoint.
+
+Render deploys the main branch with root directory backend, build command npm ci, and start command npm start. Node 22.13+ is required; Node 24 is recommended. PUBLIC_ORIGIN should be https://immxrsive-platform-r7xi.onrender.com so saved source URLs match the public service. No employer login or browser XR runtime is required. The exact browser/version used for manual testing was not recorded; cross-browser compatibility is not independently verified.
 
 ## Company intake configuration
-Simulated form: /inquiry?source_type=student&source_id=S01 or /inquiry?source_type=project&source_id=P01.
+
+Student intake: https://immxrsive-platform-r7xi.onrender.com/inquiry?source_type=student&source_id=S01
+Project intake: https://immxrsive-platform-r7xi.onrender.com/inquiry?source_type=project&source_id=P01
+
 Context fields: source_type, source_id, source_name, source_url.
 Employer fields: company_name, contact_name, contact_email, description.
-Submitted records are stored in inquiries; there is no email delivery.
+Records are stored in the inquiries table. This is a simulated intake, with no email delivery.
 
 ## Remaining release evidence
-Fill the final deployment URL, team identifier, frozen commit and release tag after deployment. Follow the Student Course Operations Handbook before freezing a release or making changes during peer QA.
+
+Commit and push these documentation updates, deploy the resulting main commit, and confirm that deployment before choosing the final assessed commit. Repeat a smoke check and record the final commit in the submitted release evidence. Create and push R1-submission at that exact deployed commit, following the Student Course Operations Handbook. The commit above identifies the implementation actually tested; it must not be presented as a newer documentation commit. Assigned peer QA remains separate from Bikramjit's self-testing.

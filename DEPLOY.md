@@ -1,47 +1,65 @@
 # Deploy and submit Release 1
-The implementation has been copied into this Desktop repository. Its existing main branch and Git history are preserved. Create the Release 1 branch with the command below. Changes have not been committed or pushed.
 
-## 1. Publish the branch to your GitHub repository
-Review the changed files in your editor, then open a terminal in this repository:
-```powershell
-git switch -c codex/release-1
-git add .
-git commit -m "Implement Release 1 public talent discovery"
-git push -u origin codex/release-1
-```
-If Git asks you to sign in, use your GitHub account. Create a pull request and merge after review, or configure Render to deploy this branch. Follow your team's course workflow.
+## Current status
 
-## 2. Configure your existing Render backend
-In Render, open immxrsive-platform and set:
-- Branch: the branch containing the reviewed Release 1 commit
+Team: team-03
+Working repository: C:\Users\sunny\OneDrive\Desktop\immxrsive-platform
+Contribution branch: Bikramjit
+Deployment branch: main
+Public directory: https://immxrsive-platform-r7xi.onrender.com/talent
+Deployed/tested implementation: cd850281df994a9b8456e28203f778f477ad67bf
+
+The implementation was pushed to main and deployed successfully. Bikramjit reported successful PostgreSQL setup and mobile/keyboard workflow checks. The submission tag is still pending. See QA_CHECKLIST.md for evidence scope.
+
+## Render configuration
+
+- Branch: main
 - Root Directory: backend
 - Build Command: npm ci
 - Start Command: npm start
-- NODE_VERSION: 24.14.0
-- DATABASE_URL: the PostgreSQL connection string for your existing persistent database
-- PUBLIC_ORIGIN: https://immxrsive-platform.onrender.com (or the actual service origin)
-- DATABASE_SSL: true if your database provider requires TLS; use its trusted certificate configuration
+- Recommended NODE_VERSION: 24.14.0
+- DATABASE_URL: your private persistent PostgreSQL connection string
+- PUBLIC_ORIGIN: https://immxrsive-platform-r7xi.onrender.com
 
-Deploy the latest commit. The backend serves both the website and API.
-Visit /health; it should show status ok and database connected.
-Visit /talent; it should show 17 published students.
-Do not deploy with SQLite on an ephemeral disk. Use your PostgreSQL database.
+Use the internal Postgres URL for a Render database in the same region/workspace. That internal connection does not require DATABASE_SSL=true. For another database connection, follow the provider's trusted TLS requirements. Keep credentials in Render environment settings, not Git.
 
-## 3. Verify the deployed build
-Complete QA_CHECKLIST.md. Use synthetic contact information in the intake form.
-Run npm test from backend (11 checks passed locally).
-Production PostgreSQL has not been tested in this chat.
-The local browser verified skill AND filtering, shared contributor roles, project inquiry context, a saved simulated inquiry, and no horizontal overflow on directory/profile/project/inquiry at 390 pixels. Keyboard Tab and Space reached and toggled a filter. Complete the full keyboard and browser checks against your deployment.
+The backend serves both frontend and API. A fresh database imports the fixtures automatically. /health should report status ok and database connected; /talent should show 17 published students.
 
-## 4. Freeze the assessed release
-Fill in your team, actual deployed URL and deployed commit in release_submission.md.
-Ensure the submission documents are included in the commit that will be assessed.
-After confirming the deployed commit and following your course release-freeze procedure:
+## Publish these documentation updates
+
+Open PowerShell in your Desktop repository and confirm you are on main:
+
+```powershell
+git branch --show-current
+git status
+git add README.md DEPLOY.md QA_CHECKLIST.md release_submission.md
+git commit -m "Record Release 1 deployment and verification"
+git push origin main
+git rev-parse HEAD
+```
+
+Wait for Render to deploy the new commit. Confirm the deployed commit matches the command output and repeat the public smoke checks. The SHA recorded in the documents describes the implementation previously tested, not the new documentation commit.
+
+## Freeze the assessed release
+
+Follow your course freeze procedure and check whether a submission tag already exists:
+
+```powershell
+git fetch origin --tags
+git tag --list R1-submission
+```
+
+If the tag exists, inspect it with your team before proceeding. Do not overwrite it.
+
+If no tag exists and the final deployment is verified:
+
 ```powershell
 git tag -a R1-submission DEPLOYED_COMMIT_SHA -m "Release 1 submission"
 git push origin R1-submission
 ```
-Replace DEPLOYED_COMMIT_SHA with the actual verified commit. Do not tag a different local commit or overwrite an existing tag.
 
-## 5. Submit
-Provide the public /talent URL, GitHub repository, R1-submission tag, completed release_submission.md and evaluation_adapter.json. The submission document includes release notes, known issues, technology summary and intake configuration. Peer QA is for the assigned reviewing team to perform, not something to invent.
+Replace DEPLOYED_COMMIT_SHA with the full verified deployed commit. Record that exact commit and the published tag in the final submission evidence. A document cannot contain its own resulting commit SHA; use the tag to resolve the final revision and include its full SHA in the submission portal or a separately saved final submission copy.
+
+## Submit
+
+Provide the public directory URL, repository URL, R1-submission tag, final assessed commit, release notes, known issues, technology summary, intake configuration and evaluation_adapter.json. The adapter already matches the implemented API/routes. Assigned peer QA must be performed separately.
