@@ -1,15 +1,16 @@
 # Dependencies
 node_modules/
 backend/node_modules/
-
 # Environment secrets
 .env
 .env.*
+!.env.example
 backend/.env
-
-# Logs
+# Logs and editor files
 *.log
-
-# Windows / editor files
 .DS_Store
 Thumbs.db
+# Local persistence and test output
+backend/data/
+*.sqlite*
+test-results/

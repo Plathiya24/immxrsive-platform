@@ -1,3 +1,2 @@
-window.APP_CONFIG = {
-    API_URL: "https://immxrsive-platform.onrender.com"
-};
+// Frontend and API are served from the same origin for stable public routes.
+window.APP_CONFIG = { API_URL: "" };
