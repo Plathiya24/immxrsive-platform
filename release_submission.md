@@ -1,6 +1,6 @@
 # Release Submission
 Release: R1
-Team: TO COMPLETE
+Team: team-03
 Deployment: TO COMPLETE — existing service candidate https://immxrsive-platform.onrender.com/talent; new build has not been deployed by this chat.
 Repository: https://github.com/Plathiya24/immxrsive-platform
 Release tag: R1-submission — pending verified deployment and release freeze
