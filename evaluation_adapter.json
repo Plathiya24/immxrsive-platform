@@ -1,18 +1,120 @@
 {
-  "directory_endpoint": "/api/students",
-  "student_detail_endpoint": "/api/students/{id}",
-  "project_detail_endpoint": "/api/projects/{id}",
-  "student_page_route": "/students/{id}",
-  "project_page_route": "/projects/{id}",
-  "query_parameters": {
-    "text": "text",
-    "skill": "skill",
-    "availability": "availability",
-    "status": "status"
-  },
-  "directory_results_path": "",
-  "id_field": "id",
-  "skills_field": "skills",
-  "contributors_field": "contributors",
-  "optional_broken_project_id": "P07"
+  "release": "R2",
+  "deployment_url": "https://immxrsive-platform-r7xi.onrender.com",
+  "checks": [
+    {
+      "requirement_or_scenario": "R2.01–R2.03; A, G",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/auth/github",
+      "method_or_action": "GET / OAuth browser flow",
+      "role": "student",
+      "setup": "Own GitHub account; configured OAuth app",
+      "expected_behavior": "Basic-profile scope read:user; stable internal account across sign-ins/username changes."
+    },
+    {
+      "requirement_or_scenario": "R2.04–R2.09; A, G",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
+      "method_or_action": "Request verification email then enter its code; POST /api/verification/request and /api/verification/confirm",
+      "role": "GitHub-authenticated unverified student",
+      "setup": "Own algomau.ca address and inbox; production delivery configured",
+      "expected_behavior": "Exact configurable domain, 15-minute default (maximum 30), single-use account-bound code; affiliation retained. Three requests/10 minutes and five attempts/challenge; recovery messages."
+    },
+    {
+      "requirement_or_scenario": "R2.10–R2.12; A",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
+      "method_or_action": "Create private draft, edit fields, Save profile; GET/POST/PUT /api/profile",
+      "role": "verified student",
+      "setup": "Successful affiliation verification; shared Release 1 skills seeded",
+      "expected_behavior": "Own private draft; structured professional fields and standardized skill choices; no legacy-profile claiming."
+    },
+    {
+      "requirement_or_scenario": "R2.13–R2.17; B, C",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/resume/import",
+      "method_or_action": "POST multipart resume upload; review/edit/reject on /studio; apply selections and Save profile",
+      "role": "verified student",
+      "setup": "backend/fixtures/resumes/resume_clean_single_column.pdf; repeat with minimal/layout_stress",
+      "expected_behavior": "Editable skills, education, experience, links when present; no maintained-field changes on upload; explicit selection before apply/save; graceful failure."
+    },
+    {
+      "requirement_or_scenario": "R2.18–R2.20; D",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/profile/preview",
+      "method_or_action": "GET after saving visibility; inspect public GET /api/students/{id}",
+      "role": "owner for preview; public for public API",
+      "setup": "Set availability/professional links private; save then publish",
+      "expected_behavior": "Public preview/data excludes private values server-side. Hidden availability also excluded from availability-filter results. Original PDFs discarded, with no public download route."
+    },
+    {
+      "requirement_or_scenario": "R2.21–R2.22; E",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/profile/publish",
+      "method_or_action": "POST publish or POST /api/profile/unpublish; inspect /talent",
+      "role": "verified owner",
+      "setup": "Own draft has headline and standardized skill; CSRF token from /api/me",
+      "expected_behavior": "Immediate directory synchronization without redeployment; unpublishing preserves maintained profile."
+    },
+    {
+      "requirement_or_scenario": "R2.23–R2.24; F",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
+      "method_or_action": "Choose ocean/forest/sunset, first/last sections, biography; Save & preview",
+      "role": "verified owner",
+      "setup": "At least two populated optional sections; record skills/availability/filter matches before changes",
+      "expected_behavior": "Three presets, default image and section ordering; structured fields/filter results unchanged by presentation changes."
+    },
+    {
+      "requirement_or_scenario": "R2.25; F, K",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
+      "method_or_action": "Save harmless HTML-like text in biography; preview and public view",
+      "role": "verified owner; public visitor",
+      "setup": "Synthetic test text only",
+      "expected_behavior": "Custom text rendered as escaped text, no executable HTML/JavaScript; professional links restricted to http(s)."
+    },
+    {
+      "requirement_or_scenario": "R2.26–R2.27; H",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
+      "method_or_action": "Use 390 CSS-pixel viewport and keyboard for fields/review/preview/publish/unpublish",
+      "role": "student",
+      "setup": "Own GitHub/Algoma account; supplied synthetic resume",
+      "expected_behavior": "Usable labeled fields, visible focus, understandable validation and no desktop-only controls."
+    },
+    {
+      "requirement_or_scenario": "R2.28; I",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/talent",
+      "method_or_action": "Public search, filters, /students/{id}, /projects/{id}, /inquiry",
+      "role": "public",
+      "setup": "Published Release 1 fixture students and projects remain seeded",
+      "expected_behavior": "Existing public discovery, stable URLs, project evidence and contextual inquiry remain usable."
+    },
+    {
+      "requirement_or_scenario": "R2.29",
+      "entry_point": "https://github.com/Plathiya24/immxrsive-platform",
+      "method_or_action": "Resolve R2-submission tag and compare with deployed /health version",
+      "role": "reviewer",
+      "setup": "Tag only after deployed smoke tests; final full SHA in release_submission.md",
+      "expected_behavior": "Immutable assessed version remains identifiable."
+    },
+    {
+      "requirement_or_scenario": "R2.30",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/profile/{id}",
+      "method_or_action": "PUT or POST /api/profile/{id}/publish or /unpublish naming another profile; also forge owner_id/user_id/profile_id on own write",
+      "role": "verified student",
+      "setup": "Use two reviewer-owned accounts or designated synthetic fixtures; normal bounded course tests only; include own CSRF",
+      "expected_behavior": "Server rejects cross-owner writes with 403; anonymous writes 401; unverified writes 403."
+    },
+    {
+      "requirement_or_scenario": "R2.31–R2.32; J",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/resume/import",
+      "method_or_action": "Import untrusted_text and minimal PDFs, inspect editable suggestions",
+      "role": "verified student",
+      "setup": "backend/fixtures/resumes/resume_untrusted_text.pdf and resume_minimal.pdf",
+      "expected_behavior": "Resume instructions treated as data; no automatic publication/email disclosure; no invented skills, employers, dates or qualifications."
+    },
+    {
+      "requirement_or_scenario": "K",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
+      "method_or_action": "Focused exploratory variations and persistence checks",
+      "role": "student",
+      "setup": "Published plan: browser history, repeat uploads, malformed link, validation, refresh, sign-out/in",
+      "expected_behavior": "Record actual outcomes and at least 15 focused minutes; do not interpret this mapping as a test pass."
+    }
+  ],
+  "fixture_setup": "Original R1 JSON fixtures seed an empty persistent database once. Four official R2 synthetic PDFs are committed under backend/fixtures/resumes and must be uploaded interactively. New users own new private profiles; fixture profiles are not claimed. No public test-login or verification-code retrieval route exists.",
+  "test_access": "Public pages require no login. Reviewers use their own GitHub account and algomau.ca inbox. Real production email must be configured before freeze; no test mode is assumed approved. Keep provider credentials and verification codes private. Configuration guide: RELEASE2_SETUP.md."
 }

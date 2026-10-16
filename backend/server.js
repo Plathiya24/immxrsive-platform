@@ -3,14 +3,18 @@ const express = require('express');
 const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const { openStore } = require('./store');
-async function createApp(store) {
+const { mountSelfService } = require('./self-service');
+const { publicProfile } = require('./profile');
+async function createApp(store, options = {}) {
  const app = express();
  app.disable('x-powered-by');
- app.use(express.json({ limit: '16kb' }));
- const published = async () => (await store.list('students')).filter(s => s.profile_status === 'published');
+ app.use(express.json({ limit: '64kb' }));
+ app.use((req,res,next) => { res.set('X-Content-Type-Options','nosniff'); res.set('Referrer-Policy','strict-origin-when-cross-origin'); res.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"); next(); });
+ await mountSelfService(app,store,options);
+ const published = async () => (await store.list('students')).filter(s => s.profile_status === 'published').map(publicProfile);
  const projects = () => store.list('projects');
  const studentView = (s, ps) => ({ ...s, project_ids: ps.filter(p => p.contributors.some(c => c.student_id === s.id)).map(p => p.id), project_count: ps.filter(p => p.contributors.some(c => c.student_id === s.id)).length });
- app.get('/health', async (req,res) => { await store.query('SELECT 1'); res.json({ status:'ok',service:'immxrsive-r1',database:'connected' }); });
+ app.get('/health', async (req,res) => { await store.query('SELECT 1'); res.json({ status:'ok',service:'immxrsive-r2',database:'connected',version:process.env.RENDER_GIT_COMMIT || process.env.RELEASE_COMMIT || 'local' }); });
  app.get('/api/skills', async (req,res) => res.json(await store.list('skills')));
  app.get('/api/students', async (req,res) => {
   const values = key => [req.query[key] || []].flat().filter(v => typeof v === 'string' && v.length);
@@ -49,6 +53,7 @@ async function createApp(store) {
  });
  app.use('/api',(req,res) => res.status(404).json({error:'Endpoint not found'}));
  app.use(express.static(path.join(__dirname,'../frontend')));
+ app.get(['/studio','/preview'],(req,res) => res.sendFile(path.join(__dirname,'../frontend/studio.html')));
  app.get(['/','/talent','/students/:id','/projects/:id','/inquiry'],(req,res) => res.sendFile(path.join(__dirname,'../frontend/index.html')));
  app.use((req,res) => res.status(404).send('Page not found. Return to /talent.'));
  app.use((error,req,res,next) => { console.error(error.message); res.status(error.status || 503).json({error:'Unable to complete this request. Please try again.'}); });

@@ -12,7 +12,7 @@ async function openStore() {
   const file = process.env.SQLITE_PATH || path.join(__dirname, 'data/talent.sqlite');
   if (file !== ':memory:') fs.mkdirSync(path.dirname(file), { recursive: true });
   const db = new DatabaseSync(file);
-  query = async (sql, args = []) => { const s = db.prepare(sql.replace(/\$\d+/g, '?')); return /^\s*SELECT/i.test(sql) ? s.all(...args) : (s.run(...args), []); };
+  query = async (sql, args = []) => { const s = db.prepare(sql.replace(/\$\d+/g, '?')); return /^\s*SELECT/i.test(sql) || /\bRETURNING\b/i.test(sql) ? s.all(...args) : (s.run(...args), []); };
   close = () => db.close();
  }
  await query('CREATE TABLE IF NOT EXISTS records (kind TEXT NOT NULL, id TEXT NOT NULL, payload TEXT NOT NULL, PRIMARY KEY (kind,id))');
