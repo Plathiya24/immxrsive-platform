@@ -1,15 +1,15 @@
-# Release Submission — preparation copy, not yet frozen
+# Release 2 Submission
 
 Release: R2
 Team: team-03
 Project Option: Project 1 — ImmXrsive Talent and Industry Platform
 Deployment: https://immxrsive-platform-r7xi.onrender.com
 Repository: https://github.com/Plathiya24/immxrsive-platform
-Release tag: R2-submission — not created until deployed workflow verification
-Commit: Pending final deployed-commit verification; the final Moodle upload must contain the resolved full SHA.
+Release tag: R2-submission
+Commit: Resolve the immutable R2-submission tag to its full commit SHA. The Moodle submission copy records the resolved full SHA after this document is committed.
 Adapter: evaluation_adapter.json
-Known issues: External OAuth and email configuration/deployed tests are pending. Resume extraction can omit or mis-group complex-column content; no OCR for image-only PDFs. Fixture evidence links may be unavailable (P07 is intentionally broken). Company intake remains a simulation and sends no inquiry email.
-Test notes: See RELEASE2_QA.md for actual local results and unverified deployed checks. Adapter mappings and isolated test doubles are not provider/deployment pass evidence.
+Known issues: Resume extraction can omit or mis-group complex-column content; no OCR for image-only PDFs. Fixture evidence links may be unavailable (P07 is intentionally broken). Company intake remains a simulation and sends no inquiry email. Free-tier hosting can require a cold start. Email delivery depends on Brevo and recipient filtering; real delivery to an Algoma inbox was verified with the configured sender.
+Test notes: See RELEASE2_QA.md for actual local and deployed results, plus explicit coverage limits. Adapter mappings and isolated test doubles are not provider/deployment pass evidence.
 
 ## Test accounts
 
@@ -27,6 +27,6 @@ PDFs are parsed in memory on the backend, cleared and discarded; no original-PDF
 
 ## Release-specific evidence and environment
 
-Setup and reviewer instructions: RELEASE2_SETUP.md. Node 24 recommended. Existing PostgreSQL DATABASE_URL plus PUBLIC_ORIGIN are retained. SESSION_SECRET, GitHub OAuth app settings, and an authorized HTTPS email provider are required before deployment assessment; see backend/.env.example. The public studio is /studio, owner preview is /preview, and the adapter maps actual APIs and roles. /health reports the deployment commit when supplied by Render.
+Setup and reviewer instructions: RELEASE2_SETUP.md. Node 24 recommended locally; Render currently selected Node 26.12.0 and the deployed workflow passed. PostgreSQL, persistent sessions, GitHub OAuth and Brevo HTTPS delivery are configured. Secrets remain in hosting settings; see backend/.env.example for names only. The public studio is /studio, owner preview is /preview, and the adapter maps actual APIs and roles. /health reports the deployment commit supplied by Render. Assessed code is on codex/release-2 and the R2-submission tag; main still contains the original R1 release.
 
-Local automated evidence covers identity/state/CSRF, domain rejection, single use, expiry, bounded attempts, ownership, server-side privacy, publication synchronization, PDF fixtures, lack of silent overwrite, safe structured choices and R1 regression. Local 390px editor/import/preview/publish/unpublish checks use an isolated synthetic identity, not actual provider sign-in. Complete fresh-session deployed OAuth/email/ownership/privacy/mobile/regression checks and repository issue-access verification before claiming readiness or freezing.
+Twenty-five local automated checks cover identity/state/CSRF, domain rejection, single use, expiry, bounded attempts, ownership, server-side privacy, publication synchronization, PDF fixtures, lack of silent overwrite, safe structured choices and R1 regression. Twelve deployed public checks passed. Actual deployed GitHub sign-in, Algoma inbox verification, draft creation/edit/preview, four PDF imports and rejection/no-overwrite behavior, public hidden-link behavior, publish/search/unpublish, 390px layout, selected keyboard controls and repeat sign-in with retained verification/profile were observed. The repository is public and the signed-in new-issue form is accessible. Cross-owner writes were tested locally, not with two deployed accounts; a separate clean browser storage context and each assigned reviewer's account were not independently exercised. See RELEASE2_QA.md for precise evidence limits.
