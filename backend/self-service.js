@@ -109,6 +109,6 @@ async function mountSelfService(app,store,options={}) {
   try {res.json(await parseResume(req.file.buffer,await store.list('skills')));}catch {res.status(422).json({error:'We could not extract useful text from this PDF. Try a text-based PDF, or keep editing manually. Existing profile work is unchanged.'});}
   finally {if(req.file?.buffer)req.file.buffer.fill(0);}
  }));
- return {findProfile,saveProfile};
+ return {findProfile,saveProfile,login,verified,csrf};
 }
 module.exports={mountSelfService};

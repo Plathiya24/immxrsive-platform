@@ -1,5 +1,5 @@
 {
-  "release": "R2",
+  "release": "R3",
   "deployment_url": "https://immxrsive-platform-r7xi.onrender.com",
   "checks": [
     {
@@ -113,8 +113,72 @@
       "role": "student",
       "setup": "Published plan: browser history, repeat uploads, malformed link, validation, refresh, sign-out/in",
       "expected_behavior": "Record actual outcomes and at least 15 focused minutes; do not interpret this mapping as a test pass."
+    },
+    {
+      "requirement_or_scenario": "R3.01–R3.06; A,C",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/my-projects",
+      "method_or_action": "Add project manually or review GitHub suggestions, edit and create; POST /api/work/import and POST /api/work",
+      "role": "verified student",
+      "setup": "Own GitHub/Algoma identity and private profile. Public repository for import.",
+      "expected_behavior": "Canonical project record independent of zero/multiple repositories; creator maintains shared fields."
+    },
+    {
+      "requirement_or_scenario": "R3.07–R3.13; A,B,J",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/my-projects",
+      "method_or_action": "Exact teammate search, invite, accept/decline, own contribution, feature/hide, transfer",
+      "role": "two verified students",
+      "setup": "Two real verified accounts; maintainer invites existing teammate; each controls own session.",
+      "expected_behavior": "Pending users absent publicly, personal narrative controlled by contributor; transfer stable; canonical relationships cannot be erased unilaterally."
+    },
+    {
+      "requirement_or_scenario": "R3.14–R3.15; E",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/projects/{id}",
+      "method_or_action": "Read project technologies/contributors and compare personal /api/students data",
+      "role": "public visitor",
+      "setup": "Published project; two accepted contributors with published profiles.",
+      "expected_behavior": "Separate project technology and individual skills; accepted public roles and narratives understandable."
+    },
+    {
+      "requirement_or_scenario": "R3.16; D",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/my-projects?new=1",
+      "method_or_action": "Check repository duplicates or submit existing repository; /api/work/duplicates",
+      "role": "verified student",
+      "setup": "Existing project repository; case and .git/trailing slash variations.",
+      "expected_behavior": "Warning includes view/join path, no automatic title merge; explicit distinct override."
+    },
+    {
+      "requirement_or_scenario": "R3.17; F",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/my-projects?edit={id}",
+      "method_or_action": "Open two maintainer sessions; save same version; PUT /api/work/{id}",
+      "role": "maintainer in two sessions",
+      "setup": "Both editors open same version.",
+      "expected_behavior": "First save wins; stale/competing save receives 409 instead of silent overwrite."
+    },
+    {
+      "requirement_or_scenario": "R3.18–R3.23; G,I",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/projects/{id}",
+      "method_or_action": "Play Demo, Watch demo, source URLs, fallback image/link; repeat broken URL and 390 CSS pixels",
+      "role": "public visitor",
+      "setup": "Public project points to /demos/working_demo.html and /demos/fallback.svg on own deployment.",
+      "expected_behavior": "Independent actions and fallback remain; raw embed code disallowed; demo opens separate tab."
+    },
+    {
+      "requirement_or_scenario": "R3.24; H",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/work/{id}",
+      "method_or_action": "PUT another project identifier with own valid CSRF/session",
+      "role": "verified non-maintainer",
+      "setup": "Use reviewer-owned test records.",
+      "expected_behavior": "403 server refusal. Contributor statement edits remain own-account only."
+    },
+    {
+      "requirement_or_scenario": "R3.25–R3.27; I",
+      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/health",
+      "method_or_action": "R1/R2 discovery/privacy/inquiry regression, project URL after transfer/repository change, resolve R3-submission",
+      "role": "public and owner",
+      "setup": "Frozen tag and full deployed SHA recorded after checks.",
+      "expected_behavior": "Cumulative behavior and stable URL retained, assessed commit identifiable."
     }
   ],
-  "fixture_setup": "Original R1 JSON fixtures seed an empty persistent database once. Four official R2 synthetic PDFs are committed under backend/fixtures/resumes and must be uploaded interactively. New users own new private profiles; fixture profiles are not claimed. No public test-login or verification-code retrieval route exists.",
+  "fixture_setup": "Original R1 JSON fixtures seed an empty persistent database once. Four official R2 synthetic PDFs are committed under backend/fixtures/resumes and must be uploaded interactively. New users own new private profiles; fixture profiles are not claimed. No public test-login or verification-code retrieval route exists. R3 roles/duplicate fixtures are under backend/fixtures; official demo/fallback are publicly hosted under /demos. No synthetic contributor acceptance is seeded. Actual shared QA record must be listed in final release submission.",
   "test_access": "Public pages require no login. Reviewers use their own GitHub account and algomau.ca inbox. Real production email must be configured before freeze; no test mode is assumed approved. Keep provider credentials and verification codes private. Configuration guide: RELEASE2_SETUP.md."
 }

@@ -1,32 +1,30 @@
-# Release 2 Submission
+# Release 3 submission preparation
 
-Release: R2
+Release: R3
 Team: team-03
 Project Option: Project 1 — ImmXrsive Talent and Industry Platform
 Deployment: https://immxrsive-platform-r7xi.onrender.com
 Repository: https://github.com/Plathiya24/immxrsive-platform
-Release tag: R2-submission
-Commit: Resolve the immutable R2-submission tag to its full commit SHA. The Moodle submission copy records the resolved full SHA after this document is committed.
-Adapter: evaluation_adapter.json
-Known issues: Resume extraction can omit or mis-group complex-column content; no OCR for image-only PDFs. Fixture evidence links may be unavailable (P07 is intentionally broken). Company intake remains a simulation and sends no inquiry email. Free-tier hosting can require a cold start. Email delivery depends on Brevo and recipient filtering; real delivery to an Algoma inbox was verified with the configured sender.
-Test notes: See RELEASE2_QA.md for actual local and deployed results, plus explicit coverage limits. Adapter mappings and isolated test doubles are not provider/deployment pass evidence.
+Tag: R3-submission (create only after deployed verification)
+Full commit SHA: pending final deployed version
 
-## Test accounts
+## Entry points and accounts
 
-Public discovery requires no account. Student reviewers sign in with their own GitHub account and verify their own algomau.ca inbox. No shared password, code, API key, SMTP credential or private resume belongs in this submission. No instructor-approved alternative verification mode has been assumed. Provider configuration must allow actual delivery to all assigned reviewers, not merely a provider sandbox owner.
+Public: /talent, /students/{id}, /projects/{id}, /inquiry.
+Students: /studio for own GitHub sign-in and algomau.ca verification; /my-projects for shared projects and invitations. Reviewers use two own accounts. No shared credential or unapproved test-login mode is provided.
 
-## Release notes
+## Required demonstration records
 
-Added stable internal GitHub-linked identities, persistent signed-in sessions, exact-domain Algoma verification, expiring single-use challenges and bounded attempts. Verified students can maintain private profiles, review PDF import suggestions without silent overwrite, control availability/link visibility, preview, publish/unpublish, and choose three themes with optional-section ordering. The original PDF is discarded. Profile writes enforce ownership server-side. Public responses remove private fields before discovery filtering. The Release 1 directory, profiles, projects and contextual inquiry remain active.
+Shared published project with two accepted contributors: pending real invitation acceptance.
+Working playable demo: /demos/working_demo.html; fallback image: /demos/fallback.svg.
+Public repository used for import: pending deployed demonstration.
 
-## Privacy / visibility summary
+## Editing and removal decisions
 
-New profiles start private. Only published profiles appear in public student APIs/discovery. Owner data, verification addresses and challenge/session records are never included in public profile responses. Students independently choose whether availability and professional links are public; hidden values become [] and {} respectively. Hidden availability is excluded from availability-filter matches as well. Name, headline, biography, program, standardized skills, education, experience and optional location are public profile content when published. Preview uses the same public projection and identifies excluded private categories.
+Only the current maintainer edits shared project fields. Accepted contributors control their own standardized role, narrative and personal portfolio featuring. Maintenance transfer preserves one project record and URL. Maintainers cannot unilaterally erase accepted relationships; canonical relationships remain, while personal display can be hidden/re-enabled. Versioned conditional saves reject stale updates with 409 and a reload path.
 
-PDFs are parsed in memory on the backend, cleared and discarded; no original-PDF download route exists. Suggestions are not persisted or automatically applied. The student selects/edits/rejects candidate fields, applies them to the editor, then explicitly saves. Text is escaped for rendering, professional links are restricted to http(s), and executable inline content is blocked by the response policy. Unpublishing preserves the maintained profile for the owner.
+## Known limits and evidence
 
-## Release-specific evidence and environment
+See README.md and RELEASE3_QA.md. Resume extraction may require manual review, especially complex layouts/scans; no OCR. GitHub public metadata may be rate-limited. External demos/media can fail; independent fallback remains. Inquiry is simulated. Previous free database expired; a fresh PostgreSQL database seeds official R1 records but does not recover previous personal records. New users verify again.
 
-Setup and reviewer instructions: RELEASE2_SETUP.md. Node 24 recommended locally; Render currently selected Node 26.12.0 and the deployed workflow passed. PostgreSQL, persistent sessions, GitHub OAuth and Brevo HTTPS delivery are configured. Secrets remain in hosting settings; see backend/.env.example for names only. The public studio is /studio, owner preview is /preview, and the adapter maps actual APIs and roles. /health reports the deployment commit supplied by Render. Assessed code is on codex/release-2 and the R2-submission tag; main still contains the original R1 release.
-
-Twenty-five local automated checks cover identity/state/CSRF, domain rejection, single use, expiry, bounded attempts, ownership, server-side privacy, publication synchronization, PDF fixtures, lack of silent overwrite, safe structured choices and R1 regression. Twelve deployed public checks passed. Actual deployed GitHub sign-in, Algoma inbox verification, draft creation/edit/preview, four PDF imports and rejection/no-overwrite behavior, public hidden-link behavior, publish/search/unpublish, 390px layout, selected keyboard controls and repeat sign-in with retained verification/profile were observed. The repository is public and the signed-in new-issue form is accessible. Cross-owner writes were tested locally, not with two deployed accounts; a separate clean browser storage context and each assigned reviewer's account were not independently exercised. See RELEASE2_QA.md for precise evidence limits.
+38 local tests passed; deployed checks and evidence are not yet complete. The original R1/R2 tags are unchanged. This preparation document must not be presented as a frozen release.

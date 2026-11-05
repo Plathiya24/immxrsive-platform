@@ -1,47 +1,44 @@
-# ImmXrsive · Release 1
-Public talent discovery built on the existing Express/PostgreSQL project.
+# ImmXrsive · Release 3
 
-Team: team-03. Public directory: https://immxrsive-platform-r7xi.onrender.com/talent. Contribution branch: Bikramjit; Render deployment branch: main.
-Deployed/tested implementation: cd850281df994a9b8456e28203f778f477ad67bf. Bikramjit confirmed mobile and keyboard workflow checks passed; see QA_CHECKLIST.md. R1-submission remains pending.
+Team 03 · Project 1 — Talent and Industry Platform
 
-## Run locally
-Use Node 22.13 or newer (Node 24 recommended).
-From `backend`:
-```
-npm ci
-npm start
-```
-Open http://localhost:3001/talent. No account is required.
-Without DATABASE_URL, fixtures are imported once into a persistent SQLite database at backend/data/talent.sqlite. Subsequent requests read the database, not fixture files.
-Run `npm test` for Release 1 regression tests. Run `npm run seed` only to intentionally reimport fixtures (it updates fixture records).
+Deployment: https://immxrsive-platform-r7xi.onrender.com
+Student profile: /studio · Shared project workspace: /my-projects · Public discovery: /talent
 
-## Deploy the existing Render service
-The service deploys main from this repository.
-Root directory: backend. Build command: npm ci. Start command: npm start.
-Set NODE_VERSION=24.14.0, DATABASE_URL to your existing PostgreSQL connection string, and PUBLIC_ORIGIN to the deployed HTTPS origin.
-For a same-region Render internal Postgres connection, leave DATABASE_SSL unset. For other providers, use DATABASE_SSL=true only when TLS is required and its certificate is trusted.
-The backend serves the frontend and API together. Public directory: https://immxrsive-platform-r7xi.onrender.com/talent.
-The PostgreSQL database must be persistent. The app creates its records/inquiries tables and imports fixtures when the student table is empty. Existing Phase 0 items are left in place.
-SQLite is suitable for local development or a deployment with an attached persistent disk; an ephemeral hosting filesystem will lose data.
+## Release 3
 
-## Public API
-- GET /api/skills
-- GET /api/students?text=unity&skill=Unity&skill=C%23&availability=internship&status=current
-- GET /api/students/{id}
-- GET /api/projects/{id}
-- POST /api/inquiries
-Repeat skill parameters for AND, availability/status parameters for OR within each category. All categories combine with AND. Skills match exact standardized names. Text matches case-insensitive substrings. Results are ordered by student ID.
-Stable pages: /talent, /students/{id}, /projects/{id}, /inquiry?source_type=student&source_id=S01.
-Only published students can be discovered or opened. Project contributor displays omit unpublished students.
+Verified students can create projects manually or review public GitHub metadata suggestions. A canonical project has a stable ID independent of repository URLs. Projects support multiple source URLs, playable/video links and fallback evidence. Use Add project, Add teammate, Accept invitation and Play Demo.
 
-## Intake simulation
-The form derives source_type, source_id, source_name and source_url from the chosen record, collects company/contact/email/description, and saves them in the datastore. This is explicitly a simulation; no email is sent and there is no public inquiry-list endpoint. Use synthetic contact details for QA.
+Only the **current maintainer** edits shared fields. A creator starts as maintainer; maintenance can transfer to any other accepted contributor. Every accepted contributor controls their own standardized role, contribution statement and personal portfolio featuring. Transfer changes neither project identity nor contributor history.
 
-## Finish the release
-1. Commit and push the updated documentation on main (see DEPLOY.md).
-2. Deploy using the configuration above and confirm /health and the complete public workflow.
-3. Confirm the final assessed commit in the submission evidence after documentation deployment; the recorded SHA identifies the implementation already tested.
-4. Perform the mobile and keyboard checks in QA_CHECKLIST.md against the deployed build.
-5. Create and push R1-submission at the verified deployed commit, following your course freeze procedure. Do not overwrite an existing submission tag.
-6. Submit the deployed URL, repository, tag, release notes and evaluation_adapter.json.
-Peer QA must be completed by the assigned reviewing team; no peer report is fabricated here.
+**Removal policy:** maintainers cannot erase accepted canonical relationships. There is no unilateral canonical removal operation. A contributor can hide personal portfolio display and later re-feature it; the underlying accepted relationship remains intact. Public contributor details also respect profile publication. Pending invitations and declined invitations never appear publicly as accepted contributions.
+
+Shared saves include a version and use a database conditional update. Stale or simultaneous competing saves receive a 409 conflict and a reload path. Project technologies never update personal skills.
+
+Duplicate source URLs are normalized for repository casing, trailing slash and .git suffix. Creating/saving warns and offers the existing project or a join-request path; an explicit distinct-project override permits legitimate separate work. Titles alone never merge records.
+
+## Access and setup
+
+Public browsing needs no account. Students use their own GitHub account and algomau.ca inbox. Verification is once per account. No shared passwords or public test-login endpoint exists. Start at /studio, verify, create a private profile, then open My projects. Find teammates by their exact GitHub username or account display name; they must already have a verified account and profile. Invitees accept in My projects and maintain their own contribution.
+
+Render root backend; build npm ci; start npm start. Persistent PostgreSQL DATABASE_URL, PUBLIC_ORIGIN, SESSION_SECRET, GITHUB_CLIENT_ID/SECRET and the existing authorized Brevo MAIL_FROM/BREVO_API_KEY are required. See backend/.env.example and RELEASE2_SETUP.md for configuration names. Never commit credentials. Node 24 or later is required. The previous free database expired; a new PostgreSQL database was configured on November 4, so prior personal account/profile/inquiry records were not migrated. Original R1 fixture data seeds an empty database automatically. Users must verify again on the new database.
+
+The app preserves the frozen R1-submission and R2-submission tags. R3 development is on codex/release-3; do not assume main is the assessed release. Final release_submission.md and immutable R3-submission identify the assessed commit.
+
+## Fixtures and demos
+
+Official standardized roles and duplicate cases: backend/fixtures/standard_roles.json and project_duplicate_cases.json. Demo and fallback: /demos/working_demo.html and /demos/fallback.svg, hosted publicly on this deployment. The demo retains the official inline code with a narrowly scoped hash-based Content Security Policy. Project pages accept URLs, not raw script/iframe HTML. Demos launch in a separate tab; a broken runtime cannot break the containing project page. A fallback image, link and video may be supplied independently.
+
+Public GitHub metadata import uses GitHub's unauthenticated repository endpoint, requests only a public owner/repository path, and does not retain an OAuth token. GitHub rate limits and outages have a manual-entry fallback. Imported values remain editable and are saved only by explicit project creation/save.
+
+## Repairs and validation
+
+Issue #2: public student detail now filters nested project contributors through the same published-profile projection used for project detail. Private contributors do not leak through nested responses.
+
+Issue #3: resume section recognition now includes TECHNICAL SKILLS, RELEVANT EXPERIENCE, SELECTED PROJECTS and other common headings. Education stops at the next recognized section. Extracted data still requires review and explicit save; complex/scanned PDFs can require manual correction.
+
+Run `npm test` in backend. Current local suite: 38 passing checks, including simulated multiple users and concurrency. Test injection is only provided by in-process tests, never enabled by production startup. Local tests do not prove external OAuth/mail or deployed multi-account behavior. Record actual deployed checks in RELEASE3_QA.md before freezing.
+
+## Limits
+
+Resume extraction is text-based, with no OCR. Public GitHub import can be rate-limited. External media can be unavailable and may be blocked by browser mixed-content rules; use HTTPS media and fallback links. Company inquiry is a persistent simulation and sends no email. Free hosting may cold-start and free database lifetimes must be monitored. Published projects can be visible with no public contributor names if all accepted contributors keep their profiles private; publish both consenting QA profiles for the required public shared example.

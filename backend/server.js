@@ -5,16 +5,22 @@ const { randomUUID } = require('node:crypto');
 const { openStore } = require('./store');
 const { mountSelfService } = require('./self-service');
 const { publicProfile } = require('./profile');
+const { mountProjects } = require('./projects');
 async function createApp(store, options = {}) {
  const app = express();
  app.disable('x-powered-by');
  app.use(express.json({ limit: '64kb' }));
- app.use((req,res,next) => { res.set('X-Content-Type-Options','nosniff'); res.set('Referrer-Policy','strict-origin-when-cross-origin'); res.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"); next(); });
- await mountSelfService(app,store,options);
+ app.use((req,res,next) => { res.set('X-Content-Type-Options','nosniff'); res.set('Referrer-Policy','strict-origin-when-cross-origin'); res.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"); next(); });
+ const auth = await mountSelfService(app,store,options);
+ const shared = await mountProjects(app,store,auth,options);
  const published = async () => (await store.list('students')).filter(s => s.profile_status === 'published').map(publicProfile);
- const projects = () => store.list('projects');
- const studentView = (s, ps) => ({ ...s, project_ids: ps.filter(p => p.contributors.some(c => c.student_id === s.id)).map(p => p.id), project_count: ps.filter(p => p.contributors.some(c => c.student_id === s.id)).length });
- app.get('/health', async (req,res) => { await store.query('SELECT 1'); res.json({ status:'ok',service:'immxrsive-r2',database:'connected',version:process.env.RENDER_GIT_COMMIT || process.env.RELEASE_COMMIT || 'local' }); });
+ const projects = async () => {
+  const ss = await published();
+  const legacy = (await store.list('projects')).map(p => ({...p,contributors:p.contributors.filter(c=>ss.some(s=>s.id===c.student_id)).map(c=>({...c,name:ss.find(s=>s.id===c.student_id).name}))}));
+  return [...legacy,...await shared.publicProjects()];
+ };
+ const studentView = (s, ps) => ({ ...s, project_ids: ps.filter(p => p.contributors.some(c => c.student_id === s.id && c.featured !== false)).map(p => p.id), project_count: ps.filter(p => p.contributors.some(c => c.student_id === s.id && c.featured !== false)).length });
+ app.get('/health', async (req,res) => { await store.query('SELECT 1'); res.json({ status:'ok',service:'immxrsive-r3',database:'connected',version:process.env.RENDER_GIT_COMMIT || process.env.RELEASE_COMMIT || 'local' }); });
  app.get('/api/skills', async (req,res) => res.json(await store.list('skills')));
  app.get('/api/students', async (req,res) => {
   const values = key => [req.query[key] || []].flat().filter(v => typeof v === 'string' && v.length);
@@ -31,7 +37,7 @@ async function createApp(store, options = {}) {
   const s = (await published()).find(s => s.id === req.params.id);
   if (!s) return res.status(404).json({error:'Student not found'});
   const ps = await projects();
-  res.json({...studentView(s,ps),projects:ps.filter(p => p.contributors.some(c => c.student_id === s.id))});
+  res.json({...studentView(s,ps),projects:ps.filter(p => p.contributors.some(c => c.student_id === s.id && c.featured !== false))});
  });
  app.get('/api/projects/:id', async (req,res) => {
   const p = (await projects()).find(p => p.id === req.params.id);
@@ -52,7 +58,9 @@ async function createApp(store, options = {}) {
   res.status(201).json({id,message:'Simulated inquiry saved. No email has been sent.',source_type:data.source_type,source_id:data.source_id,source_name:data.source_name,source_url:data.source_url});
  });
  app.use('/api',(req,res) => res.status(404).json({error:'Endpoint not found'}));
+ app.get('/demos/working_demo.html',(req,res)=>{res.set('Content-Security-Policy',"default-src 'none'; script-src 'sha256-GF6VgUgnDup4061I2zIcOH9SjC3Q0Lc0+e/rbWFwA2g='; style-src 'sha256-q2PDlbSsnFa4xp1uzpfOpE8q2Z61v5Vyi2mk/eN3cnE='; frame-ancestors 'none'; base-uri 'none'");res.sendFile(path.join(__dirname,'../frontend/demos/working_demo.html'));});
  app.use(express.static(path.join(__dirname,'../frontend')));
+ app.get(['/my-projects'],(req,res) => res.sendFile(path.join(__dirname,'../frontend/projects.html')));
  app.get(['/studio','/preview'],(req,res) => res.sendFile(path.join(__dirname,'../frontend/studio.html')));
  app.get(['/','/talent','/students/:id','/projects/:id','/inquiry'],(req,res) => res.sendFile(path.join(__dirname,'../frontend/index.html')));
  app.use((req,res) => res.status(404).send('Page not found. Return to /talent.'));
