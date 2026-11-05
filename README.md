@@ -29,7 +29,7 @@ The app preserves the frozen R1-submission and R2-submission tags. R3 developmen
 
 Official standardized roles and duplicate cases: backend/fixtures/standard_roles.json and project_duplicate_cases.json. Demo and fallback: /demos/working_demo.html and /demos/fallback.svg, hosted publicly on this deployment. The demo retains the official inline code with a narrowly scoped hash-based Content Security Policy. Project pages accept URLs, not raw script/iframe HTML. Demos launch in a separate tab; a broken runtime cannot break the containing project page. A fallback image, link and video may be supplied independently.
 
-Public GitHub metadata import uses GitHub's unauthenticated repository endpoint, requests only a public owner/repository path, and does not retain an OAuth token. GitHub rate limits and outages have a manual-entry fallback. Imported values remain editable and are saved only by explicit project creation/save.
+Public GitHub metadata import uses GitHub's unauthenticated repository endpoint, with a public GitHub page-metadata fallback when that API is unavailable, requests only a public owner/repository path, and does not retain an OAuth token. GitHub rate limits and outages have a manual-entry fallback. Imported values remain editable and are saved only by explicit project creation/save.
 
 ## Repairs and validation
 
@@ -37,7 +37,7 @@ Issue #2: public student detail now filters nested project contributors through 
 
 Issue #3: resume section recognition now includes TECHNICAL SKILLS, RELEVANT EXPERIENCE, SELECTED PROJECTS and other common headings. Education stops at the next recognized section. Extracted data still requires review and explicit save; complex/scanned PDFs can require manual correction.
 
-Run `npm test` in backend. Current local suite: 38 passing checks, including simulated multiple users and concurrency. Test injection is only provided by in-process tests, never enabled by production startup. Local tests do not prove external OAuth/mail or deployed multi-account behavior. Record actual deployed checks in RELEASE3_QA.md before freezing.
+Run `npm test` in backend. Current local suite: 39 passing checks, including simulated multiple users and concurrency. Test injection is only provided by in-process tests, never enabled by production startup. Local tests do not prove external OAuth/mail or deployed multi-account behavior. Record actual deployed checks in RELEASE3_QA.md before freezing.
 
 ## Limits
 
