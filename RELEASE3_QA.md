@@ -19,12 +19,17 @@ The local multi-account tests use in-process injected identities and simulated r
 - Live issue #2 checks: S05/S11 nested data and P03 project data exclude S16; S16 remains public 404.
 - /health reports database connected and deployed R3 commit. Full final SHA will be rechecked before tagging.
 
-## Pending deployed evidence
+## Final collaboration evidence
 
-- Second verified student must accept the live invitation and save their own contribution statement. Creator fresh real sign-in and statement persistence passed.
-- One shared published project with two consenting published profiles and accepted contributors.
+- Parthil Lathiya (Plathiya24) accepted the real invitation, saved his own statement and published his profile. The owner workspace shows both relationships accepted; the public canonical page shows both profiles, roles and personal statements. No acceptance was fabricated or seeded.
+- Rechecked the complete two-contributor page at innerWidth 390, client/scrollWidth 375/375. Fallback image loaded. Screenshots saved in release3-team03 outside the repository.
+
+## Remaining validation limits and freeze steps
+
+- Creator fresh real sign-in and statement persistence passed; second-student real acceptance/publication observed as above.
+- Required shared published project with two accepted/public contributors is complete: https://immxrsive-platform-r7xi.onrender.com/projects/R3-900f498a-10c0-42b4-b1c5-35cd5e4a3fe0
 - Join request route and transfer/authorization were covered locally; optional second-account deployed retest remains pending. Live import/edit/save/disconnect and duplicate view/join links passed.
-- Repeat the mobile public presentation with two accepted/published contributor profiles. Single-contributor mobile/demo/fallback checks passed.
+- Two-contributor mobile public presentation passed as above. Demo/fallback checks passed.
 - Two open editor stale-save check passed live; separate clean browser storage context was not independently controlled by automation. Transfer, unauthorized writes and contributor ownership have multi-user automated coverage.
 - Verify final deployed SHA after documentation commits; create immutable R3-submission only after required shared example is complete; upload final documents and Submit in Moodle.
 

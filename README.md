@@ -42,3 +42,7 @@ Run `npm test` in backend. Current local suite: 39 passing checks, including sim
 ## Limits
 
 Resume extraction is text-based, with no OCR. Public GitHub import can be rate-limited. External media can be unavailable and may be blocked by browser mixed-content rules; use HTTPS media and fallback links. Company inquiry is a persistent simulation and sends no email. Free hosting may cold-start and free database lifetimes must be monitored. Published projects can be visible with no public contributor names if all accepted contributors keep their profiles private; publish both consenting QA profiles for the required public shared example.
+
+## Assessed demonstration
+
+Shared published project with accepted public contributors: https://immxrsive-platform-r7xi.onrender.com/projects/R3-900f498a-10c0-42b4-b1c5-35cd5e4a3fe0 . Bikramjit Singh GIll and Parthil Lathiya each maintain their own contribution statement. Working demo and fallback are the supplied course fixtures; they demonstrate deployment/evidence integration, not a newly authored XR runtime.
