@@ -6,6 +6,17 @@ const { openStore } = require('./store');
 const { mountSelfService } = require('./self-service');
 const { publicProfile } = require('./profile');
 const { mountProjects } = require('./projects');
+function legacyProjectEvidence(project) {
+ if (project.id !== 'P01' || project.links?.demo !== 'https://example.com/p01-demo') return project;
+ const links = { ...project.links };
+ delete links.demo;
+ return {
+  ...project,
+  links,
+  playable_url: '/demos/p01-safety-demo.html',
+  fallback_url: '/demos/p01-safety-fallback.html'
+ };
+}
 async function createApp(store, options = {}) {
  const app = express();
  app.disable('x-powered-by');
@@ -16,7 +27,7 @@ async function createApp(store, options = {}) {
  const published = async () => (await store.list('students')).filter(s => s.profile_status === 'published').map(publicProfile);
  const projects = async () => {
   const ss = await published();
-  const legacy = (await store.list('projects')).map(p => ({...p,contributors:p.contributors.filter(c=>ss.some(s=>s.id===c.student_id)).map(c=>({...c,name:ss.find(s=>s.id===c.student_id).name}))}));
+  const legacy = (await store.list('projects')).map(legacyProjectEvidence).map(p => ({...p,contributors:p.contributors.filter(c=>ss.some(s=>s.id===c.student_id)).map(c=>({...c,name:ss.find(s=>s.id===c.student_id).name}))}));
   return [...legacy,...await shared.publicProjects()];
  };
  const studentView = (s, ps) => ({ ...s, project_ids: ps.filter(p => p.contributors.some(c => c.student_id === s.id && c.featured !== false)).map(p => p.id), project_count: ps.filter(p => p.contributors.some(c => c.student_id === s.id && c.featured !== false)).length });
