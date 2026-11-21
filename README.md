@@ -1,9 +1,19 @@
-# ImmXrsive · Release 3
+# ImmXrsive · Release 4
 
 Team 03 · Project 1 — Talent and Industry Platform
 
 Deployment: https://immxrsive-platform-r7xi.onrender.com
 Student profile: /studio · Shared project workspace: /my-projects · Public discovery: /talent
+
+## Release 4
+
+Staff work queue: /staff · Public industry directory: /partners · Student requests: the ImmXrsive review section of a maintained project in /my-projects.
+
+**Chosen challenge:** R4.19 — Server-Side Collaboration Privacy. Public partner responses omit private records and expose a staff-written public summary for limited collaborations. Inquiries use the same projection.
+
+On Render, keep the existing persistent PostgreSQL connection, public origin, OAuth and mail configuration. Set STAFF_GITHUB_IDS to a comma-separated list of the immutable numeric GitHub account IDs approved for staff. Resolve each ID from the respective account using the GitHub user API. Staff sign in with their own GitHub accounts. Review access instructions belong in the private course channel.
+
+For course fixtures, open /staff and import the unchanged source pages under /import-fixtures/. Review and publish North Shore Simulations. In its staff panel, choose Load course collaboration fixtures to add COL01 and COL02, then use the public partner link to check the two sections. The Superior Immersive Labs fixture includes private collaboration COL03. See evaluation_adapter.json for the four source URLs and test actions.
 
 ## Release 3
 

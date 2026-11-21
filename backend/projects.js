@@ -48,6 +48,6 @@ async function mountProjects(app,store,auth,options={}){
  app.post('/api/work/:id/transfer',login,verified,csrf,wrap(async(req,res)=>{const p=await load(req);maintain(p,req);version(p,req.body);const m=await member(p.id,req.body.user_id);if(!m||m.state!=='accepted'||m.user_id===req.user.id)fail('Choose another accepted contributor.');await save(p,{...p,maintainer_id:m.user_id,version:p.version+1});res.json({message:'Maintenance transferred. The project URL and accepted relationships are unchanged.'});}));
  // Accepted relationships cannot be erased by maintainers. Personal display is independently controlled.
  app.delete('/api/work/:id/contributors/:userId',login,verified,csrf,wrap(async(req,res)=>{await load(req);fail('Accepted contributor relationships cannot be erased unilaterally. Contributors can hide personal display; canonical relationships are retained.',403);}));
- return {publicProjects,all};
+ return {publicProjects,all,get,view};
 }
 module.exports={mountProjects,validate,webUrl,repoKey};

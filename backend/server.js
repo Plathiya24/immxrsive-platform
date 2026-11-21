@@ -6,6 +6,7 @@ const { openStore } = require('./store');
 const { mountSelfService } = require('./self-service');
 const { publicProfile } = require('./profile');
 const { mountProjects } = require('./projects');
+const { mountIndustry } = require('./industry');
 function legacyProjectEvidence(project) {
  if (project.id !== 'P01' || project.links?.demo !== 'https://example.com/p01-demo') return project;
  const links = { ...project.links };
@@ -30,8 +31,9 @@ async function createApp(store, options = {}) {
   const legacy = (await store.list('projects')).map(legacyProjectEvidence).map(p => ({...p,contributors:p.contributors.filter(c=>ss.some(s=>s.id===c.student_id)).map(c=>({...c,name:ss.find(s=>s.id===c.student_id).name}))}));
   return [...legacy,...await shared.publicProjects()];
  };
+ const industry = await mountIndustry(app, store, auth, shared, { projects, students: published }, options);
  const studentView = (s, ps) => ({ ...s, project_ids: ps.filter(p => p.contributors.some(c => c.student_id === s.id && c.featured !== false)).map(p => p.id), project_count: ps.filter(p => p.contributors.some(c => c.student_id === s.id && c.featured !== false)).length });
- app.get('/health', async (req,res) => { await store.query('SELECT 1'); res.json({ status:'ok',service:'immxrsive-r3',database:'connected',version:process.env.RENDER_GIT_COMMIT || process.env.RELEASE_COMMIT || 'local' }); });
+ app.get('/health', async (req,res) => { await store.query('SELECT 1'); res.json({ status:'ok',service:'immxrsive-r4',database:'connected',version:process.env.RENDER_GIT_COMMIT || process.env.RELEASE_COMMIT || 'local' }); });
  app.get('/api/skills', async (req,res) => res.json(await store.list('skills')));
  app.get('/api/students', async (req,res) => {
   const values = key => [req.query[key] || []].flat().filter(v => typeof v === 'string' && v.length);
@@ -54,16 +56,26 @@ async function createApp(store, options = {}) {
   const p = (await projects()).find(p => p.id === req.params.id);
   if (!p) return res.status(404).json({error:'Project not found'});
   const ss = await published();
-  res.json({...p,contributors:p.contributors.filter(c => ss.some(s => s.id === c.student_id)).map(c => ({...c,name:ss.find(s => s.id === c.student_id).name}))});
+  res.json({...p,...await industry.projectStatus(p.id),contributors:p.contributors.filter(c => ss.some(s => s.id === c.student_id)).map(c => ({...c,name:ss.find(s => s.id === c.student_id).name}))});
+ });
+ async function inquirySource(type, id) {
+  const row = type === 'student' ? (await published()).find(s => s.id === id) : type === 'project' ? (await projects()).find(p => p.id === id) : null;
+  if (row) return { id: row.id, name: row.name || row.title, path: (type === 'student' ? '/students/' : '/projects/') + encodeURIComponent(row.id) };
+  return industry.inquirySource(type, id);
+ }
+ app.get('/api/inquiry-context', async (req, res) => {
+  const source = await inquirySource(req.query.source_type, req.query.source_id);
+  if (!source) return res.status(404).json({error:'Inquiry source not found.'});
+  res.json(source);
  });
  app.post('/api/inquiries', async (req,res) => {
   const b = req.body || {};
-  const source = b.source_type === 'student' ? (await published()).find(s => s.id === b.source_id) : b.source_type === 'project' ? (await projects()).find(p => p.id === b.source_id) : null;
-  if (!source) return res.status(400).json({error:'Choose a valid student or project.'});
+  const source = await inquirySource(b.source_type, b.source_id);
+  if (!source) return res.status(400).json({error:'Choose a valid student, project, partner, or collaboration.'});
   for (const key of ['company_name','contact_name','contact_email','description']) if (typeof b[key] !== 'string' || !b[key].trim() || b[key].length > 4000) return res.status(400).json({error:'Complete all fields (maximum 4000 characters each).'});
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(b.contact_email)) return res.status(400).json({error:'Enter a valid email address.'});
   const origin = process.env.PUBLIC_ORIGIN || req.protocol + '://' + req.get('host'), id = randomUUID();
-  const data = {id,source_type:b.source_type,source_id:source.id,source_name:source.name || source.title,source_url:origin + '/' + (b.source_type === 'student' ? 'students' : 'projects') + '/' + source.id};
+  const data = {id,source_type:b.source_type,source_id:source.id,source_name:source.name || source.title,source_url:origin + source.path};
   for (const key of ['company_name','contact_name','contact_email','description']) data[key] = b[key].trim();
   await store.query('INSERT INTO inquiries (id,payload,created_at) VALUES ($1,$2,$3)', [id,JSON.stringify(data),new Date().toISOString()]);
   res.status(201).json({id,message:'Simulated inquiry saved. No email has been sent.',source_type:data.source_type,source_id:data.source_id,source_name:data.source_name,source_url:data.source_url});
@@ -71,6 +83,7 @@ async function createApp(store, options = {}) {
  app.use('/api',(req,res) => res.status(404).json({error:'Endpoint not found'}));
  app.get('/demos/working_demo.html',(req,res)=>{res.set('Content-Security-Policy',"default-src 'none'; script-src 'sha256-GF6VgUgnDup4061I2zIcOH9SjC3Q0Lc0+e/rbWFwA2g='; style-src 'sha256-q2PDlbSsnFa4xp1uzpfOpE8q2Z61v5Vyi2mk/eN3cnE='; frame-ancestors 'none'; base-uri 'none'");res.sendFile(path.join(__dirname,'../frontend/demos/working_demo.html'));});
  app.use(express.static(path.join(__dirname,'../frontend')));
+ app.get(['/partners', '/partners/:id', '/staff'], (req,res) => res.sendFile(path.join(__dirname,'../frontend/industry.html')));
  app.get(['/my-projects'],(req,res) => res.sendFile(path.join(__dirname,'../frontend/projects.html')));
  app.get(['/studio','/preview'],(req,res) => res.sendFile(path.join(__dirname,'../frontend/studio.html')));
  app.get(['/','/talent','/students/:id','/projects/:id','/inquiry'],(req,res) => res.sendFile(path.join(__dirname,'../frontend/index.html')));

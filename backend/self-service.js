@@ -39,7 +39,7 @@ async function mountSelfService(app,store,options={}) {
  app.get('/api/me',async(req,res)=>{const pending=req.user&&!req.user.verified_email?(await store.query('SELECT id FROM r2_challenges WHERE user_id=$1 AND used_at IS NULL AND expires_at>$2 AND attempts<5 ORDER BY created_at DESC LIMIT 1',[req.user.id,new Date().toISOString()]))[0]:null;req.session.csrf ||= crypto.randomBytes(24).toString('hex');res.json({pending_challenge_id:pending?.id||null,user:req.user?{id:req.user.id,name:req.user.display_name,github_login:req.user.github_login,verified:!!req.user.verified_email}:null,csrf:req.session.csrf,github_configured:!!(process.env.GITHUB_CLIENT_ID&&process.env.GITHUB_CLIENT_SECRET),verification_delivery_configured:mailDelivery.configured(),approved_domains:(process.env.APPROVED_EMAIL_DOMAINS||'algomau.ca').split(',').map(s=>s.trim().toLowerCase()),verification_expiry_minutes:Math.min(30,Math.max(1,Number(process.env.VERIFICATION_TTL_MINUTES)||15)),resume_policy:'Original PDFs are held in memory during extraction and discarded; there is no resume download endpoint.'});});
  app.get('/auth/github',(req,res)=>{
   if(!process.env.GITHUB_CLIENT_ID||!process.env.GITHUB_CLIENT_SECRET)return res.status(503).send('GitHub sign-in is not configured. Please contact the team.');
-  req.session.oauth={state:crypto.randomBytes(24).toString('hex'),verifier:crypto.randomBytes(32).toString('base64url'),expires:Date.now()+600000};
+  req.session.oauth={state:crypto.randomBytes(24).toString('hex'),verifier:crypto.randomBytes(32).toString('base64url'),expires:Date.now()+600000,returnTo:req.query.next==='staff'?'/staff':'/studio'};
   const query=new URLSearchParams({client_id:process.env.GITHUB_CLIENT_ID,redirect_uri:origin+'/auth/github/callback',scope:'read:user',state:req.session.oauth.state,code_challenge:crypto.createHash('sha256').update(req.session.oauth.verifier).digest('base64url'),code_challenge_method:'S256'});
   req.session.save(error=>error?res.status(503).send('Unable to start sign-in.'):res.redirect('https://github.com/login/oauth/authorize?'+query));
  });
@@ -53,7 +53,7 @@ async function mountSelfService(app,store,options={}) {
    const response=await (options.githubFetch||fetch)('https://api.github.com/user',{headers:{Authorization:'Bearer '+token.access_token,Accept:'application/vnd.github+json','User-Agent':'immxrsive-platform'},signal:AbortSignal.timeout(15000)});
    const account=await response.json();if(!response.ok||!Number.isSafeInteger(account.id)||!account.login)throw new Error('GitHub account could not be read.');
    await store.query('INSERT INTO r2_users (id,github_id,github_login,display_name) VALUES ($1,$2,$3,$4) ON CONFLICT(github_id) DO UPDATE SET github_login=excluded.github_login,display_name=excluded.display_name',[crypto.randomUUID(),String(account.id),account.login,account.name||account.login]);
-   const user=(await store.query('SELECT * FROM r2_users WHERE github_id=$1',[String(account.id)]))[0];await establishSession(req,user);res.redirect('/studio');
+   const user=(await store.query('SELECT * FROM r2_users WHERE github_id=$1',[String(account.id)]))[0];await establishSession(req,user);res.redirect(state.returnTo==='/staff'?'/staff':'/studio');
   }catch {res.status(502).send('GitHub sign-in could not complete. Return to /studio and try again.');}
  });
  // Dependency injection is available only to an in-process automated test; no test-login HTTP route exists.

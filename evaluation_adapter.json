@@ -1,184 +1,208 @@
 {
-  "release": "R3",
+  "release": "R4",
   "deployment_url": "https://immxrsive-platform-r7xi.onrender.com",
   "checks": [
     {
-      "requirement_or_scenario": "R2.01–R2.03; A, G",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/auth/github",
-      "method_or_action": "GET / OAuth browser flow",
-      "role": "student",
-      "setup": "Own GitHub account; configured OAuth app",
-      "expected_behavior": "Basic-profile scope read:user; stable internal account across sign-ins/username changes."
+      "requirement_or_scenario": "R4.01",
+      "entry_point": "/staff",
+      "method_or_action": "Sign in with GitHub and open the staff queue",
+      "role": "staff",
+      "setup": "Use an approved staff GitHub account and open /staff.",
+      "expected_behavior": "Staff sees work categories without requiring student affiliation."
     },
     {
-      "requirement_or_scenario": "R2.04–R2.09; A, G",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
-      "method_or_action": "Request verification email then enter its code; POST /api/verification/request and /api/verification/confirm",
-      "role": "GitHub-authenticated unverified student",
-      "setup": "Own algomau.ca address and inbox; production delivery configured",
-      "expected_behavior": "Exact configurable domain, 15-minute default (maximum 30), single-use account-bound code; affiliation retained. Three requests/10 minutes and five attempts/challenge; recovery messages."
+      "requirement_or_scenario": "R4.02",
+      "entry_point": "/api/staff/queue; /api/staff/companies; /api/staff/requests/{id}/review",
+      "method_or_action": "GET queue or POST protected action directly",
+      "role": "public or ordinary student",
+      "setup": "Use a signed-out browser or an ordinary student session.",
+      "expected_behavior": "Guest is denied with 401; ordinary student is denied with 403. No changes are made."
     },
     {
-      "requirement_or_scenario": "R2.10–R2.12; A",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
-      "method_or_action": "Create private draft, edit fields, Save profile; GET/POST/PUT /api/profile",
-      "role": "verified student",
-      "setup": "Successful affiliation verification; shared Release 1 skills seeded",
-      "expected_behavior": "Own private draft; structured professional fields and standardized skill choices; no legacy-profile claiming."
+      "requirement_or_scenario": "R4.03",
+      "entry_point": "/staff",
+      "method_or_action": "Open the work queue",
+      "role": "staff",
+      "setup": "Use an approved staff GitHub account and open /staff.",
+      "expected_behavior": "Pending project verification, partner requests, and company drafts appear under separate tasks."
     },
     {
-      "requirement_or_scenario": "R2.13–R2.17; B, C",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/resume/import",
-      "method_or_action": "POST multipart resume upload; review/edit/reject on /studio; apply selections and Save profile",
-      "role": "verified student",
-      "setup": "backend/fixtures/resumes/resume_clean_single_column.pdf; repeat with minimal/layout_stress",
-      "expected_behavior": "Editable skills, education, experience, links when present; no maintained-field changes on upload; explicit selection before apply/save; graceful failure."
+      "requirement_or_scenario": "R4.04",
+      "entry_point": "/my-projects?edit={projectId}",
+      "method_or_action": "Request project verification with a note",
+      "role": "student maintainer",
+      "setup": "Sign in as a verified student and create or open a project you maintain.",
+      "expected_behavior": "Request shows pending and makes no public verification change."
     },
     {
-      "requirement_or_scenario": "R2.18–R2.20; D",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/profile/preview",
-      "method_or_action": "GET after saving visibility; inspect public GET /api/students/{id}",
-      "role": "owner for preview; public for public API",
-      "setup": "Set availability/professional links private; save then publish",
-      "expected_behavior": "Public preview/data excludes private values server-side. Hidden availability also excluded from availability-filter results. Original PDFs discarded, with no public download route."
+      "requirement_or_scenario": "R4.05",
+      "entry_point": "/staff#verification",
+      "method_or_action": "Read the project, contributor and note details; approve or reject",
+      "role": "staff",
+      "setup": "A student submitted a pending verification request.",
+      "expected_behavior": "Decision persists. Approval reveals an official verification marker on a published project."
     },
     {
-      "requirement_or_scenario": "R2.21–R2.22; E",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/profile/publish",
-      "method_or_action": "POST publish or POST /api/profile/unpublish; inspect /talent",
-      "role": "verified owner",
-      "setup": "Own draft has headline and standardized skill; CSRF token from /api/me",
-      "expected_behavior": "Immediate directory synchronization without redeployment; unpublishing preserves maintained profile."
+      "requirement_or_scenario": "R4.06",
+      "entry_point": "/api/work/{projectId}; /api/projects/{projectId}",
+      "method_or_action": "Attempt to set an official marker with a standard project edit; read the public record",
+      "role": "student maintainer",
+      "setup": "Sign in as a verified student and create or open a project you maintain.",
+      "expected_behavior": "The official verification marker is derived solely from staff decisions."
     },
     {
-      "requirement_or_scenario": "R2.23–R2.24; F",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
-      "method_or_action": "Choose ocean/forest/sunset, first/last sections, biography; Save & preview",
-      "role": "verified owner",
-      "setup": "At least two populated optional sections; record skills/availability/filter matches before changes",
-      "expected_behavior": "Three presets, default image and section ordering; structured fields/filter results unchanged by presentation changes."
+      "requirement_or_scenario": "R4.07",
+      "entry_point": "/staff#manage",
+      "method_or_action": "Enter company details manually; save draft",
+      "role": "staff",
+      "setup": "Use an approved staff GitHub account and open /staff.",
+      "expected_behavior": "Draft supports name, website, description, sector, and location."
     },
     {
-      "requirement_or_scenario": "R2.25; F, K",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
-      "method_or_action": "Save harmless HTML-like text in biography; preview and public view",
-      "role": "verified owner; public visitor",
-      "setup": "Synthetic test text only",
-      "expected_behavior": "Custom text rendered as escaped text, no executable HTML/JavaScript; professional links restricted to http(s)."
+      "requirement_or_scenario": "R4.08",
+      "entry_point": "/staff#manage",
+      "method_or_action": "Import each of the four supplied company-site URLs",
+      "role": "staff",
+      "setup": "https://immxrsive-platform-r7xi.onrender.com/import-fixtures/company_normal.html, https://immxrsive-platform-r7xi.onrender.com/import-fixtures/company_sparse.html, https://immxrsive-platform-r7xi.onrender.com/import-fixtures/company_prompt_injection.html, https://immxrsive-platform-r7xi.onrender.com/import-fixtures/company_same_name_other_domain.html",
+      "expected_behavior": "Normal imports North Shore Simulations, location Sault Ste. Marie, Ontario, and simulation, XR and training keywords. Sparse imports Algoma Field Systems with missing fields for manual completion. Superior Immersive Labs remains unverified. North Shore Simulation Studio stays separate."
     },
     {
-      "requirement_or_scenario": "R2.26–R2.27; H",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
-      "method_or_action": "Use 390 CSS-pixel viewport and keyboard for fields/review/preview/publish/unpublish",
-      "role": "student",
-      "setup": "Own GitHub/Algoma account; supplied synthetic resume",
-      "expected_behavior": "Usable labeled fields, visible focus, understandable validation and no desktop-only controls."
+      "requirement_or_scenario": "R4.09",
+      "entry_point": "/staff#drafts; /partners",
+      "method_or_action": "Import, review, edit and then publish",
+      "role": "staff",
+      "setup": "Use an approved staff GitHub account and open /staff.",
+      "expected_behavior": "Imported company starts as a draft and appears publicly after staff explicitly publishes it."
     },
     {
-      "requirement_or_scenario": "R2.28; I",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/talent",
-      "method_or_action": "Public search, filters, /students/{id}, /projects/{id}, /inquiry",
+      "requirement_or_scenario": "R4.11",
+      "entry_point": "/staff#manage",
+      "method_or_action": "Try a website that cannot be fetched, then enter or edit a draft manually",
+      "role": "staff",
+      "setup": "Keep a draft containing a manual edit while attempting the failing import.",
+      "expected_behavior": "The failure explains manual entry and leaves the draft untouched."
+    },
+    {
+      "requirement_or_scenario": "R4.12",
+      "entry_point": "/staff#drafts",
+      "method_or_action": "Review imported company draft",
+      "role": "staff",
+      "setup": "Import the normal fixture.",
+      "expected_behavior": "The staff record shows the source URL and import timestamp."
+    },
+    {
+      "requirement_or_scenario": "R4.15",
+      "entry_point": "/staff",
+      "method_or_action": "Open the partner and choose Add collaboration",
+      "role": "staff",
+      "setup": "Create or import a company. Use public projects and students for related links.",
+      "expected_behavior": "Staff can save a title, year/range, description, public project or student references, outcome, status and visibility."
+    },
+    {
+      "requirement_or_scenario": "R4.16",
+      "entry_point": "/staff; /partners/{companyId}",
+      "method_or_action": "Load or add two collaborations on the same partner; view the public partner",
+      "role": "staff then public",
+      "setup": "Publish the imported North Shore Simulations partner and load its two fixture collaborations.",
+      "expected_behavior": "One partner shows both fixture collaborations in their respective years."
+    },
+    {
+      "requirement_or_scenario": "R4.17",
+      "entry_point": "/staff; /api/projects/{projectId}",
+      "method_or_action": "Select two public projects on one collaboration; approve relationships to two companies for one project",
+      "role": "staff and student maintainer",
+      "setup": "Create two published companies and suitable public projects.",
+      "expected_behavior": "Both selected projects appear on the public collaboration. Both approved partners appear on the public project."
+    },
+    {
+      "requirement_or_scenario": "R4.18",
+      "entry_point": "/staff; /partners/{companyId}",
+      "method_or_action": "Set a collaboration to each available visibility and open partner as a public visitor",
+      "role": "staff then public",
+      "setup": "Publish the imported North Shore Simulations partner and load its two fixture collaborations.",
+      "expected_behavior": "Public details appear, limited displays an anonymized summary, and private is omitted."
+    },
+    {
+      "requirement_or_scenario": "R4.19",
+      "entry_point": "/api/partners/{companyId}; /api/inquiry-context?source_type=collaboration&source_id={collaborationId}; /api/inquiries",
+      "method_or_action": "Inspect anonymous responses and attempt a synthetic inquiry using both limited and private IDs",
       "role": "public",
-      "setup": "Published Release 1 fixture students and projects remain seeded",
-      "expected_behavior": "Existing public discovery, stable URLs, project evidence and contextual inquiry remain usable."
+      "setup": "Create one private collaboration and one limited collaboration with a separate anonymized public summary.",
+      "expected_behavior": "Private record is absent and cannot be used as inquiry context. Limited returns the generic title, date/status and staff-provided public summary, with no internal description, outcome, project or participant IDs."
     },
     {
-      "requirement_or_scenario": "R2.29",
-      "entry_point": "https://github.com/Plathiya24/immxrsive-platform",
-      "method_or_action": "Resolve R2-submission tag and compare with deployed /health version",
-      "role": "reviewer",
-      "setup": "Tag only after deployed smoke tests; final full SHA in release_submission.md",
-      "expected_behavior": "Immutable assessed version remains identifiable."
+      "requirement_or_scenario": "R4.20",
+      "entry_point": "/my-projects?edit={projectId}",
+      "method_or_action": "Choose a company or suggest a new one; explain the relationship and submit",
+      "role": "student maintainer",
+      "setup": "Sign in as a verified student and create or open a project you maintain.",
+      "expected_behavior": "The relationship appears as pending in the project workflow and staff queue."
     },
     {
-      "requirement_or_scenario": "R2.30",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/profile/{id}",
-      "method_or_action": "PUT or POST /api/profile/{id}/publish or /unpublish naming another profile; also forge owner_id/user_id/profile_id on own write",
-      "role": "verified student",
-      "setup": "Use two reviewer-owned accounts or designated synthetic fixtures; normal bounded course tests only; include own CSRF",
-      "expected_behavior": "Server rejects cross-owner writes with 403; anonymous writes 401; unverified writes 403."
+      "requirement_or_scenario": "R4.21",
+      "entry_point": "/staff#association; /api/projects/{projectId}",
+      "method_or_action": "Compare a project before and after staff approves its relationship request",
+      "role": "staff then public",
+      "setup": "Start with a pending partner request and a published company.",
+      "expected_behavior": "The official association exists publicly only after staff approval."
     },
     {
-      "requirement_or_scenario": "R2.31–R2.32; J",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/resume/import",
-      "method_or_action": "Import untrusted_text and minimal PDFs, inspect editable suggestions",
-      "role": "verified student",
-      "setup": "backend/fixtures/resumes/resume_untrusted_text.pdf and resume_minimal.pdf",
-      "expected_behavior": "Resume instructions treated as data; no automatic publication/email disclosure; no invented skills, employers, dates or qualifications."
+      "requirement_or_scenario": "R4.22",
+      "entry_point": "/partners; /partners/{companyId}",
+      "method_or_action": "Browse the directory and open a published partner",
+      "role": "public",
+      "setup": "Publish the imported North Shore Simulations partner and load its two fixture collaborations.",
+      "expected_behavior": "Partner description, collaborations, appropriate public links, source website and inquiry action are easy to find."
     },
     {
-      "requirement_or_scenario": "K",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/studio",
-      "method_or_action": "Focused exploratory variations and persistence checks",
-      "role": "student",
-      "setup": "Published plan: browser history, repeat uploads, malformed link, validation, refresh, sign-out/in",
-      "expected_behavior": "Record actual outcomes and at least 15 focused minutes; do not interpret this mapping as a test pass."
+      "requirement_or_scenario": "R4.23",
+      "entry_point": "/partners/{companyId}",
+      "method_or_action": "Compare current and past collaboration sections",
+      "role": "public",
+      "setup": "Publish the imported North Shore Simulations partner and load its two fixture collaborations.",
+      "expected_behavior": "The 2026 study appears under current and 2025 prototype under past."
     },
     {
-      "requirement_or_scenario": "R3.01–R3.06; A,C",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/my-projects",
-      "method_or_action": "Add project manually or review GitHub suggestions, edit and create; POST /api/work/import and POST /api/work",
-      "role": "verified student",
-      "setup": "Own GitHub/Algoma identity and private profile. Public repository for import.",
-      "expected_behavior": "Canonical project record independent of zero/multiple repositories; creator maintains shared fields."
+      "requirement_or_scenario": "R4.24",
+      "entry_point": "/partners/{companyId}; /inquiry; /api/inquiries",
+      "method_or_action": "Open inquiry from the partner and from a public collaboration; submit with synthetic contacts",
+      "role": "public",
+      "setup": "Publish the imported North Shore Simulations partner and load its two fixture collaborations.",
+      "expected_behavior": "The saved simulated inquiry returns authoritative source type, ID, name and URL."
     },
     {
-      "requirement_or_scenario": "R3.07–R3.13; A,B,J",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/my-projects",
-      "method_or_action": "Exact teammate search, invite, accept/decline, own contribution, feature/hide, transfer",
-      "role": "two verified students",
-      "setup": "Two real verified accounts; maintainer invites existing teammate; each controls own session.",
-      "expected_behavior": "Pending users absent publicly, personal narrative controlled by contributor; transfer stable; canonical relationships cannot be erased unilaterally."
+      "requirement_or_scenario": "R4.25",
+      "entry_point": "/staff",
+      "method_or_action": "Import, review, publish and add a collaboration from the work queue",
+      "role": "staff",
+      "setup": "Use an approved staff GitHub account and open /staff.",
+      "expected_behavior": "Staff can complete the flow using form labels and task navigation."
     },
     {
-      "requirement_or_scenario": "R3.14–R3.15; E",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/projects/{id}",
-      "method_or_action": "Read project technologies/contributors and compare personal /api/students data",
-      "role": "public visitor",
-      "setup": "Published project; two accepted contributors with published profiles.",
-      "expected_behavior": "Separate project technology and individual skills; accepted public roles and narratives understandable."
+      "requirement_or_scenario": "R4.26",
+      "entry_point": "/partners/{companyId}; /inquiry",
+      "method_or_action": "Use a 390 CSS pixel viewport and complete the public partner and inquiry workflow",
+      "role": "public",
+      "setup": "Publish the imported North Shore Simulations partner and load its two fixture collaborations.",
+      "expected_behavior": "Content fits the viewport and links and inquiry controls can be used."
     },
     {
-      "requirement_or_scenario": "R3.16; D",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/my-projects?new=1",
-      "method_or_action": "Check repository duplicates or submit existing repository; /api/work/duplicates",
-      "role": "verified student",
-      "setup": "Existing project repository; case and .git/trailing slash variations.",
-      "expected_behavior": "Warning includes view/join path, no automatic title merge; explicit distinct override."
+      "requirement_or_scenario": "R4.27",
+      "entry_point": "/talent; /studio; /my-projects; /projects/P01",
+      "method_or_action": "Repeat discovery, student privacy, contributor roles, demo/fallback and inquiry checks",
+      "role": "public and verified student",
+      "setup": "Use own student test accounts and the existing R1–R3 fixtures.",
+      "expected_behavior": "Prior discovery, self-service, shared project and demo workflows still work."
     },
     {
-      "requirement_or_scenario": "R3.17; F",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/my-projects?edit={id}",
-      "method_or_action": "Open two maintainer sessions; save same version; PUT /api/work/{id}",
-      "role": "maintainer in two sessions",
-      "setup": "Both editors open same version.",
-      "expected_behavior": "First save wins; stale/competing save receives 409 instead of silent overwrite."
-    },
-    {
-      "requirement_or_scenario": "R3.18–R3.23; G,I",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/projects/{id}",
-      "method_or_action": "Play Demo, Watch demo, source URLs, fallback image/link; repeat broken URL and 390 CSS pixels",
-      "role": "public visitor",
-      "setup": "Public project points to /demos/working_demo.html and /demos/fallback.svg on own deployment.",
-      "expected_behavior": "Independent actions and fallback remain; raw embed code disallowed; demo opens separate tab."
-    },
-    {
-      "requirement_or_scenario": "R3.24; H",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/api/work/{id}",
-      "method_or_action": "PUT another project identifier with own valid CSRF/session",
-      "role": "verified non-maintainer",
-      "setup": "Use reviewer-owned test records.",
-      "expected_behavior": "403 server refusal. Contributor statement edits remain own-account only."
-    },
-    {
-      "requirement_or_scenario": "R3.25–R3.27; I",
-      "entry_point": "https://immxrsive-platform-r7xi.onrender.com/health",
-      "method_or_action": "R1/R2 discovery/privacy/inquiry regression, project URL after transfer/repository change, resolve R3-submission",
-      "role": "public and owner",
-      "setup": "Frozen tag and full deployed SHA recorded after checks.",
-      "expected_behavior": "Cumulative behavior and stable URL retained, assessed commit identifiable."
+      "requirement_or_scenario": "R4.28",
+      "entry_point": "/health",
+      "method_or_action": "Compare deployment version with the GitHub R4-submission tag and Moodle SHA",
+      "role": "public",
+      "setup": "Use the full SHA from the frozen submission.",
+      "expected_behavior": "Tag and deployment identify the same assessed commit at freeze."
     }
   ],
-  "fixture_setup": "Original R1 JSON fixtures seed an empty persistent database once. Four official R2 synthetic PDFs are committed under backend/fixtures/resumes and must be uploaded interactively. New users own new private profiles; fixture profiles are not claimed. No public test-login or verification-code retrieval route exists. R3 roles/duplicate fixtures are under backend/fixtures; official demo/fallback are publicly hosted under /demos. No synthetic contributor acceptance is seeded. Actual shared QA record must be listed in final release submission.",
-  "test_access": "Public pages require no login. Reviewers use their own GitHub account and algomau.ca inbox. Real production email must be configured before freeze; no test mode is assumed approved. Keep provider credentials and verification codes private. Configuration guide: RELEASE2_SETUP.md."
+  "fixture_setup": "Import the four unchanged course pages hosted at /import-fixtures/ using the URLs above. Review and publish North Shore Simulations, then use Load course collaboration fixtures on that company. For COL03, use the same action on Superior Immersive Labs, and keep the collaboration private. Use a verified project maintainer to submit an association request before staff reviews it. The fixture loader preserves fixed course IDs and can be run again safely.",
+  "test_access": "Public flows need no account. Use GitHub OAuth on /staff with an account authorized by the team; send reviewer access instructions through the private course channel. For student checks use your own GitHub account, verify an Algoma student inbox in /studio, and create or open a project you maintain."
 }
