@@ -98,8 +98,12 @@ async function mountIndustry(app, store, auth, shared, catalogue, options = {}) 
           ...publicFields, title: row.title, description: row.description, outcome: row.outcome,
           projects: projectLinks(row.project_ids), students: studentLinks(row.student_ids)
         };
-      }).sort((a, b) => b.year.localeCompare(a.year))
+      }).sort((a, b) => collaborationStartYear(b.year) - collaborationStartYear(a.year))
     };
+  }
+
+  function collaborationStartYear(value) {
+    return Number(value.match(/^(?:19|20|21)\d{2}/)?.[0] || 0);
   }
 
   app.get('/api/partners', wrap(async (_req, res) => res.json((await companies())
@@ -139,7 +143,7 @@ async function mountIndustry(app, store, auth, shared, catalogue, options = {}) 
     }
     const draft = {
       ...candidate, id: randomUUID(), published: false,
-      provenance: { url: source.href, imported_at: new Date().toISOString(), imported_fields: Object.keys(candidate) }
+      provenance: { url: source.href, imported_at: new Date().toISOString(), imported_values: { ...candidate }, edited_fields: [] }
     };
     await insert('r4_companies', draft);
     res.status(201).json(draft);
@@ -148,12 +152,19 @@ async function mountIndustry(app, store, auth, shared, catalogue, options = {}) 
   async function saveCompany(req, res) {
     const old = req.params.id ? await requireRecord('r4_companies', req.params.id) : null;
     const url = site(field(req.body, 'website', 1500));
-    const company = {
-      id: old?.id || randomUUID(), name: field(req.body, 'name', 200, true),
-      website: url, domain: url ? new URL(url).hostname : '',
+    const values = {
+      name: field(req.body, 'name', 200, true), website: url,
       description: field(req.body, 'description', 3000), sector: field(req.body, 'sector', 250),
-      location: field(req.body, 'location', 250), published: old?.published || false,
-      provenance: old?.provenance || null
+      location: field(req.body, 'location', 250)
+    };
+    const importedValues = old?.provenance?.imported_values;
+    const domain = url ? new URL(url).hostname : '';
+    const editedFields = importedValues
+      ? Object.keys(importedValues).filter(key => (key === 'domain' ? domain : values[key]) !== importedValues[key]) : [];
+    const provenance = old?.provenance ? { ...old.provenance, edited_fields: editedFields } : null;
+    const company = {
+      id: old?.id || randomUUID(), ...values, domain,
+      published: old?.published || false, provenance
     };
     if (old) await replace('r4_companies', old, company);
     else await insert('r4_companies', company);
@@ -172,9 +183,13 @@ async function mountIndustry(app, store, auth, shared, catalogue, options = {}) 
     const old = req.params.id ? await requireRecord('r4_collaborations', req.params.id) : null;
     if (old && old.company_id !== company.id) fail('Collaboration unavailable for this partner.', 404);
     const [projects, students] = await Promise.all([catalogue.projects(), catalogue.students()]);
+    const year = field(req.body, 'year', 80, true);
+    if (!/^(?:19|20|21)\d{2}(?:\s*[-–—]\s*(?:19|20|21)\d{2})?$/.test(year)) {
+      fail('Enter a four-digit year or year range, such as 2025 or 2024–2026.');
+    }
     const value = {
       id: old?.id || randomUUID(), company_id: company.id,
-      title: field(req.body, 'title', 200, true), year: field(req.body, 'year', 80, true),
+      title: field(req.body, 'title', 200, true), year,
       description: field(req.body, 'description', 3000, true), outcome: field(req.body, 'outcome', 1500),
       status: select(req.body, 'status', ['current', 'past']),
       visibility: select(req.body, 'visibility', ['public', 'limited', 'private']),
@@ -209,11 +224,14 @@ async function mountIndustry(app, store, auth, shared, catalogue, options = {}) 
     const status = select(req.body, 'decision', ['approved', 'rejected']);
     let companyId = request.company_id;
     if (request.type === 'partner' && status === 'approved') {
-      companyId ||= field(req.body, 'company_id', 100, true);
+      companyId ||= String(req.body.company_id || '').trim();
+      if (!companyId) fail('Choose a published company before approving this request.');
       if (!(await get('r4_companies', companyId))?.published) fail('Publish the company before approving its relationship.');
     }
+    const reviewerNote = field(req.body, 'reviewer_note', 1500);
+    if (status === 'rejected' && !reviewerNote) fail('Add a short reason before rejecting this request.');
     const updated = {
-      ...request, status, company_id: companyId, reviewer_note: field(req.body, 'reviewer_note', 1500),
+      ...request, status, company_id: companyId, reviewer_note: reviewerNote,
       reviewed_at: new Date().toISOString()
     };
     res.json(await replace('r4_requests', request, updated));

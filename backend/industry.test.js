@@ -87,12 +87,19 @@ test('R4 staff workflows, approvals, import fixtures and public collaboration pr
         partner = response.data;
         partnerPath = '/api/partners/' + partner.id;
         assert.equal(partner.location, 'Sault Ste. Marie, Ontario');
+        assert.equal(partner.website, 'https://northshore-sim.example.test/');
+        assert.equal(partner.domain, 'northshore-sim.example.test');
         for (const keyword of ['simulation', 'XR', 'training']) assert.match(partner.sector, new RegExp(keyword));
       }
       if (filename === 'sparse') assert.equal(response.data.description, '');
     }
     assert.equal((await staff.call(companyPath + '/import', 'POST', { url: 'https://fixtures.example.test/missing.html' })).status, 422);
     assert.equal((await staff.call('/api/staff/queue')).data.companies.length, 4);
+    const editedCompany = await staff.call(companyPath + '/' + partner.id, 'PUT', {
+      name: partner.name, website: partner.website, description: 'Staff-reviewed company summary.',
+      sector: partner.sector, location: partner.location
+    });
+    assert.deepEqual(editedCompany.data.provenance.edited_fields, ['description']);
     assert.equal((await staff.call(companyPath + '/' + partner.id + '/publish', 'POST', {})).status, 200);
     assert.equal((await publicUser.call(partnerPath)).status, 200);
   });
@@ -100,7 +107,7 @@ test('R4 staff workflows, approvals, import fixtures and public collaboration pr
     const verification = await student.call(requestPath, 'POST', { type: 'verification', note: 'Working evidence at public project page.' });
     const association = await student.call(requestPath, 'POST', { type: 'partner', company_id: partner.id, note: 'Provided a project brief.' });
     assert.equal(verification.status, 201);
-    assert.equal(association.status, 201);
+    assert.equal(association.status, 201, JSON.stringify(association.data));
     assert.equal((await publicUser.call(projectPath)).data.institution_verified, false);
     assert.deepEqual((await publicUser.call(projectPath)).data.partners, []);
     for (const request of [verification, association]) {
@@ -112,6 +119,21 @@ test('R4 staff workflows, approvals, import fixtures and public collaboration pr
     assert.equal(published.institution_verified, true);
     assert.equal(published.partners[0].id, partner.id);
     assert.equal((await publicUser.call(partnerPath)).data.projects[0].id, projectId);
+
+    const suggested = await student.call(requestPath, 'POST', {
+      type: 'partner', suggested_company: 'Suggested Partner', note: 'Potential collaboration.'
+    });
+    const suggestedReview = '/api/staff/requests/' + encodeURIComponent(suggested.data.id) + '/review';
+    const missingCompany = await staff.call(suggestedReview, 'POST', { decision: 'approved' });
+    assert.equal(missingCompany.status, 400);
+    assert.match(missingCompany.data.error, /Choose a published company/);
+
+    const missingReason = await staff.call(suggestedReview, 'POST', { decision: 'rejected', reviewer_note: '' });
+    assert.equal(missingReason.status, 400);
+    assert.match(missingReason.data.error, /Add a short reason/);
+    const rejected = await staff.call(suggestedReview, 'POST', { decision: 'rejected', reviewer_note: 'Insufficient public evidence.' });
+    assert.equal(rejected.status, 200);
+    assert.equal(rejected.data.reviewer_note, 'Insufficient public evidence.');
   });
   await t.test('public history, private and limited projection, and contextual inquiries', async () => {
     const edit = companyPath + '/' + partner.id;
@@ -123,13 +145,23 @@ test('R4 staff workflows, approvals, import fixtures and public collaboration pr
       outcome: 'Secret outcome', status: 'current', project_ids: [projectId], student_ids: ['S01'],
       public_summary: 'A training collaboration.'
     };
+    const invalidYear = await staff.call(edit + '/collaborations', 'POST', { ...row, year: 'banana', visibility: 'public' });
+    assert.equal(invalidYear.status, 400);
+    assert.match(invalidYear.data.error, /four-digit year or year range/);
+    const rangeYear = await staff.call(edit + '/collaborations', 'POST', {
+      ...row, title: 'Public range collaboration', year: '2027–2028', description: 'A public description.',
+      outcome: 'Public result.', visibility: 'public'
+    });
+    assert.equal(rangeYear.status, 201);
     const hidden = await staff.call(edit + '/collaborations', 'POST', { ...row, visibility: 'private' });
     const limited = await staff.call(edit + '/collaborations', 'POST', { ...row, visibility: 'limited' });
     assert.equal(hidden.status, 201);
     assert.equal(limited.status, 201);
     const publicPartner = (await publicUser.call(partnerPath)).data;
-    assert.equal(publicPartner.collaborations.length, 3);
+    assert.equal(publicPartner.collaborations.length, 4);
     assert.ok(publicPartner.collaborations.some(item => item.status === 'past'));
+    assert.ok(publicPartner.collaborations.findIndex(item => item.id === rangeYear.data.id) <
+      publicPartner.collaborations.findIndex(item => item.id === 'COL02'));
     assert.ok(!JSON.stringify(publicPartner).includes(hidden.data.id));
     assert.ok(!JSON.stringify(publicPartner).includes('Secret'));
     assert.deepEqual(publicPartner.collaborations.find(item => item.id === limited.data.id), {

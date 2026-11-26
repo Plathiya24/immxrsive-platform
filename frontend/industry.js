@@ -73,7 +73,7 @@ function companyFields(company = {}) {
 function collaborationForm(queue, companyId, row = {}) {
   return '<form class="industry-form" data-action="collaboration" data-company="' + esc(companyId) + '" data-id="' + esc(row.id) + '">' +
     input('Collaboration title', 'title', row.title, { required: true }) +
-    input('Year, date, or range', 'year', row.year, { required: true }) +
+    input('Year or year range (for example, 2025 or 2024–2026)', 'year', row.year, { required: true }) +
     input('Short description', 'description', row.description, { area: true, required: true }) +
     input('Outcome or highlight', 'outcome', row.outcome, { area: true }) +
     select('Status', 'status', [['current', 'Current'], ['past', 'Past']], row.status) +
@@ -89,8 +89,10 @@ function companyPanel(queue, company) {
   const edits = queue.collaborations.filter(row => row.company_id === id);
   return '<article class="panel" id="company-' + esc(id) + '"><h3>' + esc(company.name) + '</h3><p>' +
     (company.published ? link(partnerUrl(id), 'View public partner page') : 'Draft awaiting publication') + '</p>' +
-    (company.provenance ? '<p>Imported from ' + link(company.provenance.url, company.provenance.url) + ' on ' +
-      esc(new Date(company.provenance.imported_at).toLocaleString()) + '.</p>' : '') +
+    (company.provenance ? '<p>Import source: ' + link(company.provenance.url, company.provenance.url) + ' · Imported on ' +
+      esc(new Date(company.provenance.imported_at).toLocaleString()) + '.</p><p>Imported fields: ' +
+      esc(Object.keys(company.provenance.imported_values || {}).join(', ') || 'not recorded') +
+      '. Staff-edited fields: ' + esc((company.provenance.edited_fields || []).join(', ') || 'none') + '.</p>' : '') +
     '<form class="industry-form" data-action="company" data-id="' + esc(id) + '">' + companyFields(company) +
     '<button>Save company details</button>' + (!company.published ?
       '<button type="submit" name="publish" value="1">Save and publish partner</button>' : '') + '</form>' +

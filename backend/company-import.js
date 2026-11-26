@@ -82,9 +82,20 @@ function companyCandidate(html, finalUrl) {
   const description = metadata.get('description') || metadata.get('og:description') ||
     paragraphs.find(value => value.length >= 45 && !/^(location|services|sector|keywords):/i.test(value)) || '';
   const location = metadata.get('geo.placename') || (paragraphs.find(value => /^location:/i.test(value)) || '').replace(/^location:\s*/i, '').replace(/,\s*Canada$/i, '');
+  const companyWebsite = Array.from(page.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a\s*>/gi))
+    .map(([, attributes, label]) => {
+      const href = attributes.match(/\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+      return { label: text(label).toLowerCase(), href: href?.[1] ?? href?.[2] ?? href?.[3] };
+    })
+    .find(anchor => anchor.href && /^(company website|website)$/.test(anchor.label));
+  let companyUrl = finalUrl;
+  if (companyWebsite) {
+    try { companyUrl = website(new URL(companyWebsite.href, finalUrl).href).href; }
+    catch { companyUrl = finalUrl; }
+  }
   return {
-    name: name.slice(0, 200), description: description.slice(0, 3000), website: finalUrl,
-    domain: new URL(finalUrl).hostname, sector: keywords.join(', ').slice(0, 250), location: location.slice(0, 250)
+    name: name.slice(0, 200), description: description.slice(0, 3000), website: companyUrl,
+    domain: new URL(companyUrl).hostname, sector: keywords.join(', ').slice(0, 250), location: location.slice(0, 250)
   };
 }
 

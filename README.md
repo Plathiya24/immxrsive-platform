@@ -47,7 +47,11 @@ Issue #2: public student detail now filters nested project contributors through 
 
 Issue #3: resume section recognition now includes TECHNICAL SKILLS, RELEVANT EXPERIENCE, SELECTED PROJECTS and other common headings. Education stops at the next recognized section. Extracted data still requires review and explicit save; complex/scanned PDFs can require manual correction.
 
-Run `npm test` in backend. Current local suite: 39 passing checks, including simulated multiple users and concurrency. Test injection is only provided by in-process tests, never enabled by production startup. Local tests do not prove external OAuth/mail or deployed multi-account behavior. Record actual deployed checks in RELEASE3_QA.md before freezing.
+Run `npm test` in backend. The post-freeze R4 repair branch passes 44 checks, including the new company import, provenance, year validation, rejection explanation and staff approval cases. Test injection is only provided by in-process tests, never enabled by production startup. Local tests do not prove external OAuth/mail or deployed multi-account behavior.
+
+## Release 4 post-freeze repairs
+
+The immutable `R4-submission` tag remains at its original frozen commit. Repairs are on `codex/release-4` and do not change the assessed tag. Issues #7–#11 cover the code fixes: company-site link import, field-level import provenance, numeric collaboration-year validation and sorting, required rejection explanations, and clear staff guidance when a suggested partner has no selected published company. Issue #6 records that reviewer staff access was granted on November 23 after the reviewer encountered a 403 on November 22; that timing cannot be changed retroactively. See the issue replies for the repair commit and deployment evidence.
 
 ## Limits
 
