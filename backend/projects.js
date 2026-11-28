@@ -28,8 +28,37 @@ async function mountProjects(app,store,auth,options={}){
  const maintain=(p,req)=>{if(p.maintainer_id!==req.user.id)fail('Only the current maintainer can edit shared information.',403);};
  const version=(p,b)=>{if(!Number.isInteger(b.version)||b.version!==p.version)fail('This project changed since you opened it. Reload the latest version before saving.',409);};
  const view=async(p,userId)=>{const ms=await members(p.id);const profile=await findProfile(p.maintainer_id);return {...p,maintainer_name:profile?.name||'Project maintainer',members:await Promise.all(ms.map(async m=>{const s=await findProfile(m.user_id);const u=(await store.query('SELECT github_login FROM r2_users WHERE id=$1',[m.user_id]))[0];return {...m,name:s?.name||u?.github_login||'Student',github_login:u?.github_login};})),my_membership:ms.find(m=>m.user_id===userId)||null,can_edit:p.maintainer_id===userId};};
- async function publicView(p){const ss=(await store.list('students')).filter(s=>s.profile_status==='published');const cs=[];for(const m of await members(p.id)){const s=ss.find(s=>s.owner_id===m.user_id);if(m.state==='accepted'&&s)cs.push({student_id:s.id,name:s.name,role:m.role,statement:m.statement||'',featured:m.featured!==false});}return {id:p.id,title:p.title,description:p.description,domain:p.domain,technologies:p.technologies||[],date:p.date,status:p.status,repositories:p.repositories||[],links:Object.fromEntries((p.repositories||[]).map((x,i)=>['source '+(i+1),x])),playable_url:p.playable_url,video_url:p.video_url,fallback_url:p.fallback_url,fallback_image:p.fallback_image,contributors:cs};}
- const publicProjects=async()=>Promise.all((await all()).filter(p=>p.published).map(publicView));
+ async function publicProjects() {
+  const projects = (await all()).filter(project => project.published);
+  if (!projects.length) return [];
+  const [students, rows] = await Promise.all([
+   store.list('students'),
+   store.query('SELECT project_id,payload FROM r3_members ORDER BY project_id,user_id')
+  ]);
+  const owners = new Map();
+  for (const student of students) {
+   if (student.profile_status === 'published' && student.owner_id && !owners.has(student.owner_id)) {
+    owners.set(student.owner_id, student);
+   }
+  }
+  const credited = new Map(projects.map(project => [project.id, []]));
+  for (const row of rows) {
+   const credits = credited.get(row.project_id);
+   if (!credits) continue;
+   const member = JSON.parse(row.payload);
+   const student = owners.get(member.user_id);
+   if (member.state !== 'accepted' || !student) continue;
+   credits.push({
+    student_id:student.id,name:student.name,role:member.role,statement:member.statement||'',featured:member.featured!==false
+   });
+  }
+  return projects.map(p => ({
+   id:p.id,title:p.title,description:p.description,domain:p.domain,technologies:p.technologies||[],date:p.date,
+   status:p.status,repositories:p.repositories||[],links:Object.fromEntries((p.repositories||[]).map((x,i)=>['source '+(i+1),x])),
+   playable_url:p.playable_url,video_url:p.video_url,fallback_url:p.fallback_url,fallback_image:p.fallback_image,
+   contributors:credited.get(p.id)
+  }));
+ }
  const duplicates=async(repos,except)=>{const keys=repos.map(repoKey);const shared=(await all()).filter(p=>p.id!==except&&(p.repositories||[]).some(u=>keys.includes(repoKey(u))));const legacy=(await store.list('projects')).filter(p=>Object.entries(p.links||{}).filter(([k,v])=>/repo|github|source/i.test(k)||/github\.com/i.test(v)).some(([,u])=>{try{return keys.includes(repoKey(u));}catch{return false;}}));return [...shared.map(p=>({id:p.id,title:p.published?p.title:'Existing private project',url:p.published?'/projects/'+p.id:null,join_url:'/my-projects?join='+p.id})),...legacy.map(p=>({id:p.id,title:p.title,url:'/projects/'+p.id,join_url:null}))];};
  app.use(['/api/work','/api/contributors'],(req,res,next)=>{res.set('Cache-Control','no-store');next();});
  app.get('/api/project-roles',(req,res)=>res.json(roles));

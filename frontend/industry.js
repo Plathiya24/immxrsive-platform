@@ -1,5 +1,8 @@
 const main = document.querySelector('main');
 main.className = 'detail industry';
+const industrySection = location.pathname === '/staff' ? '/staff' : '/partners';
+document.querySelector('.site-header nav a[href="' + industrySection + '"]').setAttribute(
+  'aria-current', location.pathname === industrySection ? 'page' : 'location');
 let csrf;
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -12,18 +15,21 @@ const linked = (rows, prefix) => (rows || []).map(row => link(prefix + encoded(r
 async function api(url, method = 'GET', data) {
   const response = await fetch(url, {
     method,
+    signal: method === 'GET' ? AbortSignal.timeout?.(75000) : undefined,
     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf || '' },
     body: data ? JSON.stringify(data) : undefined
   });
-  const result = await response.json();
-  if (!response.ok) throw Object.assign(new Error(result.error), { status: response.status });
-  return result;
+  if (!response.ok) {
+    const result = await response.json().catch(() => ({}));
+    throw Object.assign(new Error(result.error || 'Unable to load this page.'), { status: response.status });
+  }
+  return response.json();
 }
 
 async function showPublic(id) {
   if (!id) {
     const partners = await api('/api/partners');
-    main.innerHTML = '<h1>Industry partners</h1><p>Explore companies working with ImmXrsive and the projects that came out of those collaborations.</p>' +
+    main.innerHTML = '<section class="page-intro"><p class="eyebrow">INDUSTRY & RESEARCH</p><h1>Industry partners</h1><p>Explore companies working with ImmXrsive and the projects that came out of those collaborations.</p></section>' +
       '<div class="industry-cards">' + (partners.length ? partners.map(partner => '<article class="panel"><h2>' +
         link(partnerUrl(partner.id), partner.name) + '</h2><p>' + esc(partner.description) + '</p></article>').join('')
         : '<p>No industry partners have been published yet.</p>') + '</div>';
@@ -31,23 +37,36 @@ async function showPublic(id) {
   }
   const partner = await api('/api/partners/' + encoded(id));
   document.title = partner.name + ' · ImmXrsive';
-  main.innerHTML = link('/partners', '← Industry partners') + '<h1>' + esc(partner.name) + '</h1><p>' + esc(partner.description) + '</p>' +
-    '<p>' + esc([partner.sector, partner.location].filter(Boolean).join(' · ')) + '</p><p class="industry-links">' +
+  const history = [
+    { status: 'current', label: 'Current collaborations' },
+    { status: 'past', label: 'Past collaborations' }
+  ].map(section => ({
+    ...section, rows: partner.collaborations.filter(row => row.status === section.status)
+  }));
+  const historyLinks = history.filter(section => section.rows.length).map(section =>
+    link('#collaborations-' + section.status, section.label + ' (' + section.rows.length + ')')).join('');
+  main.innerHTML = '<div class="back">' + link('/partners', '← Industry partners') + '</div><section class="page-intro"><p class="eyebrow">INDUSTRY PARTNER</p><h1>' + esc(partner.name) + '</h1><p>' + esc(partner.description) + '</p>' +
+    '<p class="muted">' + esc([partner.sector, partner.location].filter(Boolean).join(' · ')) + '</p><p class="industry-links">' +
     (partner.website ? link(partner.website, 'Company website') : '') +
-    link(inquiryUrl('partner', partner.id), 'Start a collaboration inquiry') + '</p>' +
-    (partner.projects.length ? '<h2>Verified project relationships</h2><p>' + linked(partner.projects, '/projects/') + '</p>' : '') +
-    ['current', 'past'].map(status => {
-      const rows = partner.collaborations.filter(row => row.status === status);
-      return '<section><h2>' + (status === 'current' ? 'Current collaborations' : 'Past collaborations') + '</h2>' +
-        (rows.length ? rows.map(row => '<article class="panel" id="collaboration-' + esc(row.id) + '"><h3>' + esc(row.title) +
-          '</h3><p>' + esc(row.year) + '</p><p>' + esc(row.description) + '</p>' +
+    link(inquiryUrl('partner', partner.id), 'Start a collaboration inquiry') + '</p></section>' +
+    (historyLinks ? '<nav class="collaboration-index" aria-label="Collaboration history">' + historyLinks + '</nav>' : '') +
+    history.map(({ status, label, rows }) => {
+      return '<section aria-labelledby="collaborations-' + status + '"><h2 tabindex="-1" id="collaborations-' + status + '">' + label + '</h2>' +
+        (rows.length ? rows.map(row => '<article class="panel collaboration-card" tabindex="-1" id="collaboration-' + esc(row.id) + '">' +
+          '<p class="eyebrow">' + esc([status === 'current' ? 'Current' : 'Past', row.year].filter(Boolean).join(' · ')) + '</p><h3>' +
+          esc(row.title) + '</h3>' + (row.description ? '<p>' + esc(row.description) + '</p>' : '') +
           (row.outcome ? '<p><strong>Outcome</strong> ' + esc(row.outcome) + '</p>' : '') +
-          (row.projects?.length ? '<p><strong>Projects</strong> ' + linked(row.projects, '/projects/') + '</p>' : '') +
-          (row.students?.length ? '<p><strong>Participants</strong> ' + linked(row.students, '/students/') + '</p>' : '') +
-          link(inquiryUrl('collaboration', row.id), 'Ask about this collaboration') + '</article>').join('') :
+          (row.projects?.length ? '<p><strong>Related projects:</strong> ' + linked(row.projects, '/projects/') + '</p>' : '') +
+          (row.students?.length ? '<p><strong>Public participants:</strong> ' + linked(row.students, '/students/') + '</p>' : '') +
+          '<a class="secondary-link" href="' + esc(inquiryUrl('collaboration', row.id)) + '">Ask about this collaboration</a></article>').join('') :
           '<p>No ' + status + ' collaborations are listed.</p>') + '</section>';
-    }).join('');
-  if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+    }).join('') +
+    (partner.projects.length ? '<section class="panel"><h2>Verified project relationships</h2><p>' + linked(partner.projects, '/projects/') + '</p></section>' : '');
+  if (location.hash) {
+    let anchor = location.hash.slice(1);
+    try { anchor = decodeURIComponent(anchor); } catch { /* Keep the original anchor if it has invalid encoding. */ }
+    document.getElementById(anchor)?.focus();
+  }
 }
 
 const staffApi = (path, method, data) => api('/api/staff' + path, method, data);
@@ -204,11 +223,24 @@ async function handleStaffForm(event) {
 }
 
 (async () => {
+  const staff = location.pathname === '/staff';
+  const finishLoading = staff ? () => {} : showLoadingStatus(main, 'Loading industry partners…');
   try {
-    if (location.pathname === '/staff') await showStaff();
+    if (staff) await showStaff();
     else await showPublic(decodeURIComponent(location.pathname.split('/')[2] || ''));
   } catch (error) {
-    main.innerHTML = '<h1>' + (error.status === 403 ? 'Staff access required' : 'Page unavailable') + '</h1><p>' +
-      esc(error.message) + '</p>' + link('/partners', 'Browse industry partners');
+    if (staff) {
+      main.innerHTML = '<h1>' + (error.status === 403 ? 'Staff access required' : 'Page unavailable') + '</h1><p>' +
+        esc(error.message) + '</p>' + link('/partners', 'Browse industry partners');
+    } else {
+      const unavailable = error.status === 404;
+      showPageRecovery(main, {
+        title: unavailable ? 'Partner unavailable' : 'This page couldn’t load',
+        text: unavailable ? 'This partner may have moved or may no longer be public.' : 'The service may be temporarily unavailable.',
+        href: '/partners', label: 'Browse industry partners', retry: unavailable ? null : () => location.reload()
+      });
+    }
+  } finally {
+    finishLoading();
   }
 })();

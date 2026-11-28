@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/fonts/plus-jakarta-sans-latin.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/instrument-serif-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+body {
+  margin: 0;
+  background: #fff;
+  color: #111317;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+}
+a { color: #0b554f; }
+:focus-visible { outline: 2px solid #c8102e; outline-offset: 3px; }
+.map-wrap { width: min(1200px, calc(100% - 2 * clamp(20px, 4vw, 48px))); margin-inline: auto; }
+.map-header { position: sticky; z-index: 4; top: 0; padding-block: 12px; background: #fff; border-bottom: 1px solid #e1e4e8; }
+.map-brand { color: #111317; font-size: 1.6rem; font-weight: 800; letter-spacing: -.045em; }
+.map-brand span { color: #c8102e; }
+.map-nav { margin-inline-start: auto; }
+.map-nav a { display: inline-flex; min-height: 44px; align-items: center; padding-inline: 7px; color: #111317; font-size: .875rem; }
+.map-nav a:hover { color: #0b554f; text-decoration: underline; }
+.map-nav a[aria-current] { box-shadow: inset 0 -2px #c8102e; }
+.map-skip { position: absolute; z-index: 5; top: 8px; left: 8px; padding: 8px; background: #fff; transform: translateY(-150%); }
+.map-skip:focus { transform: none; }
+.map-intro { margin-block: clamp(26px, 5vw, 65px) 24px; }
+.map-intro h1 { margin: 0 0 8px; font: 400 clamp(3rem, 7vw, 5.15rem)/.95 "Instrument Serif", Georgia, serif; letter-spacing: -.025em; }
+.map-intro p { margin: 5px 0 0; }
+.map-intro .map-sample-note { color: #4a505c; font-size: .8125rem; }
+.map-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(265px, 1fr); align-items: start; gap: 16px; padding-bottom: 40px; }
+.map-board, .map-details { border: 1px solid #e1e4e8; border-radius: 18px; }
+.map-board {
+  min-width: 0;
+  overflow: hidden;
+  background: radial-gradient(circle, #dfe4e9 1px, transparent 1px) 0 0 / 18px 18px, #fafbfc;
+}
+.map-board h2 { margin: 13px 0 0 16px; color: #4a505c; font-size: .875rem; font-weight: 700; }
+.ecosystem-diagram { display: block; width: 100%; height: auto; }
+.ecosystem-diagram-phone { display: none; }
+.ecosystem-edge { stroke: #8e9aa7; }
+.ecosystem-edge-active { stroke: #c8102e; stroke-width: 2.4; }
+.ecosystem-edge-active[data-highlight="false"] { opacity: 0; }
+.ecosystem-node-card { fill: #fff; stroke: #aeb9c4; stroke-width: 1.2; transform-box: fill-box; transform-origin: center; }
+.ecosystem-node-card[data-linked="true"] { stroke: #0b554f; stroke-width: 1.7; }
+.ecosystem-node:hover .ecosystem-node-card { fill: #eef7f5; }
+.ecosystem-node[aria-current] .ecosystem-node-card { fill: #fff0f2; stroke: #c8102e; stroke-width: 2.3; }
+.ecosystem-node:focus-visible .ecosystem-node-card { stroke: #111317; stroke-width: 3; }
+.ecosystem-node-group { fill: #4a505c; font-size: 14px; font-weight: 650; }
+.ecosystem-node-label { fill: #111317; font-size: 16px; font-weight: 750; }
+.map-details { padding: 20px; background: #fff; }
+.map-detail-type { margin: 0 0 7px; color: #8d1429; font-size: .8125rem; font-weight: 750; }
+.map-details h2 { margin: 0; font-size: 1.32rem; font-weight: 750; line-height: 1.2; scroll-margin-top: 9rem; }
+.map-tags { margin: 13px 0 19px; list-style: none; padding: 0; }
+.map-tags li { border-radius: 999px; background: #edf5f3; padding: 4px 8px; color: #0b554f; font-size: .73rem; }
+.map-details h3 { margin: 0 0 3px; font-size: .9375rem; font-weight: 750; }
+.map-relationships { margin: 0; padding: 0; list-style: none; }
+.map-relationships li { border-top: 1px solid #e1e4e8; }
+.map-relationships a { display: flex; min-height: 44px; align-items: center; padding-block: 5px; font-size: .84rem; text-decoration: underline; text-underline-offset: .18em; }
+
+.map-records { padding-bottom: 48px; }
+.map-records h2 { margin: 0 0 12px; font-size: 1.5rem; font-weight: 750; }
+.map-bento { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 255px), 1fr)); gap: 12px; }
+.map-bento-card { padding: 16px; border: 1px solid #e1e4e8; border-radius: 16px; }
+.map-bento-card h3 { margin: 6px 0 0; font-weight: 750; font-size: 1.025rem; }
+.map-bento-card a { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: .18em; }
+.map-bento-meta { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 8px; color: #4a505c; font-size: .8125rem; }
+
+.ecosystem-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px 3px 4px;
+  border: 1px solid #e1e4e8;
+  border-radius: 999px;
+  background: #fff;
+  color: #9e0b22;
+  font-size: max(12px, .75rem);
+  font-weight: 750;
+  line-height: 1.35;
+  --status-dot: #c8102e;
+}
+
+.ecosystem-status[data-status="open"] { color: #0b554f; --status-dot: #0f766e; }
+.ecosystem-status-icon { position: relative; display: grid; place-items: center; flex: 0 0 16px; width: 16px; height: 16px; }
+.ecosystem-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--status-dot); }
+.ecosystem-status-canvas {
+  position: absolute;
+  inset: 0;
+  width: 16px;
+  height: 16px;
+  visibility: hidden;
+  pointer-events: none;
+}
+.ecosystem-status-canvas[data-painted="true"] { visibility: visible; }
+.ecosystem-status-icon:has(.ecosystem-status-canvas[data-painted="true"]) .ecosystem-status-dot { visibility: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ecosystem-status-icon .ecosystem-status-canvas { display: none; }
+  .ecosystem-status-icon:has(.ecosystem-status-canvas[data-painted="true"]) .ecosystem-status-dot { visibility: visible; }
+}
+
+@media (max-width: 900px) { .map-layout { grid-template-columns: minmax(0, 1fr); } }
+
+@media (max-width: 700px) {
+  .map-header { padding-block: 8px; }
+  .map-nav { order: 1; width: 100%; margin: 0; column-gap: 0; }
+  .map-nav a { padding-inline: 5px; font-size: .8rem; }
+  .ecosystem-diagram-desktop { display: none; }
+  .ecosystem-diagram-phone { display: block; }
+}

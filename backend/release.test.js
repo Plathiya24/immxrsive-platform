@@ -19,6 +19,9 @@ test('Release 1 API, persistence, filtering, routes and inquiry contract', async
  try {
  await t.test('directory includes exactly published students, sorted deterministically',async () => {
   const a=await get('/api/students'),b=await get('/api/students'); assert.equal(a.status,200); assert.deepEqual(ids(a.data),ids(published)); assert.deepEqual(a.data,b.data); assert.ok(a.data.every(s=>Number.isInteger(s.project_count)));
+  const paged = await get('/api/students?page=1&text=Avery');
+  assert.equal(paged.data.students.length, 1);
+  assert.deepEqual(paged.data.students[0].project_credit, { id:'P01',title:'Industrial Safety VR Trainer',role:'XR Developer' });
  });
  await t.test('case-insensitive substring search across name, headline and skills',async () => {
   for(const text of ['AVERY','developer','unity','sQL']) { const r=await get('/api/students?text='+encodeURIComponent(text)); assert.deepEqual(ids(r.data),ids(published.filter(s=>[s.name,s.headline,...s.skills].some(v=>v.toLowerCase().includes(text.toLowerCase()))))); }
@@ -46,7 +49,11 @@ test('Release 1 API, persistence, filtering, routes and inquiry contract', async
   assert.ok(a.projects.some(v=>v.id===p.id)); assert.ok(b.projects.some(v=>v.id===p.id)); assert.equal(p.contributors.find(v=>v.student_id==='S02').role,'3D Artist');
  });
  await t.test('optional broken evidence is isolated',async () => {
-  assert.equal((await get('/api/projects/P07')).data.links.demo,'https://example.invalid/demo');
+  const sparse=(await get('/api/projects/P07')).data;
+  assert.equal(sparse.links.demo,'https://example.invalid/demo');
+  assert.deepEqual(sparse.public_evidence,[]);
+  const trainer=(await get('/api/projects/P01')).data;
+  assert.deepEqual(trainer.public_evidence.map(item=>item.kind),['playable','fallback']);
   assert.equal((await get('/api/students/S01')).status,200);assert.equal((await get('/api/students')).status,200);
  });
  await t.test('direct page URLs return the app and API 404 stays JSON',async () => {

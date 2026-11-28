@@ -168,12 +168,27 @@ test('R4 staff workflows, approvals, import fixtures and public collaboration pr
       id: limited.data.id, year: '2026', status: 'current', visibility: 'limited',
       title: 'Anonymized collaboration', description: 'A training collaboration.'
     });
+    const publicProject = (await publicUser.call(projectPath)).data;
+    assert.deepEqual(publicProject.collaborations, [{
+      id: rangeYear.data.id, title: 'Public range collaboration', year: '2027–2028', status: 'current',
+      partner: { id: partner.id, name: partner.name }
+    }]);
     const context = '/api/inquiry-context?source_type=collaboration&source_id=';
     assert.equal((await publicUser.call(context + hidden.data.id)).status, 404);
-    assert.equal((await publicUser.call(context + limited.data.id)).data.name, 'Anonymized collaboration');
+    const limitedContext = (await publicUser.call(context + limited.data.id)).data;
+    assert.equal(limitedContext.name, 'Anonymized collaboration');
+    assert.deepEqual(limitedContext.partner, { id: partner.id, name: partner.name });
+    assert.ok(!JSON.stringify(limitedContext).includes('Secret'));
+    const pastContext = (await publicUser.call(context + 'COL01')).data;
+    assert.equal(pastContext.name, 'Industrial Safety Training Prototype');
+    assert.deepEqual(pastContext.partner, { id: partner.id, name: partner.name });
+    assert.equal(pastContext.path, '/partners/' + partner.id + '#collaboration-COL01');
     const inquiry = { company_name: 'Test Company', contact_name: 'Test Reviewer', contact_email: 'reviewer@example.test',
       description: 'Synthetic QA inquiry', source_type: 'collaboration' };
     assert.equal((await publicUser.call('/api/inquiries', 'POST', { ...inquiry, source_id: hidden.data.id })).status, 400);
+    const invalid = await publicUser.call('/api/inquiries', 'POST', { ...inquiry, source_id: 'COL01', contact_name: '   ' });
+    assert.equal(invalid.status, 400);
+    assert.equal(invalid.data.field, 'contact_name');
     const saved = await publicUser.call('/api/inquiries', 'POST', { ...inquiry, source_id: 'COL01' });
     assert.equal(saved.status, 201);
     assert.equal(saved.data.source_url, base + '/partners/' + partner.id + '#collaboration-COL01');

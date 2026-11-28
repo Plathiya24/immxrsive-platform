@@ -15,7 +15,7 @@ The implementation was pushed to main and deployed successfully. Bikramjit repor
 
 - Branch: main
 - Root Directory: backend
-- Build Command: npm ci
+- Build Command: `npm ci && npm run build:ecosystem`
 - Start Command: npm start
 - Recommended NODE_VERSION: 24.14.0
 - DATABASE_URL: your private persistent PostgreSQL connection string
@@ -24,6 +24,8 @@ The implementation was pushed to main and deployed successfully. Bikramjit repor
 Use the internal Postgres URL for a Render database in the same region/workspace. That internal connection does not require DATABASE_SSL=true. For another database connection, follow the provider's trusted TLS requirements. Keep credentials in Render environment settings, not Git.
 
 The backend serves both frontend and API. A fresh database imports the fixtures automatically. /health should report status ok and database connected; /talent should show 17 published students.
+
+The ecosystem build exports the Next.js map and bundles the shared search palette for the existing site headers. With the same build command locally, start the backend and open `/ecosystem`. The map uses sample ecosystem data.
 
 ## Publish these documentation updates
 

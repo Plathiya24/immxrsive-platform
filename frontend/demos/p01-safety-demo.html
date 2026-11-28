@@ -1,22 +1,44 @@
 <!doctype html>
 <html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Industrial Safety VR Trainer — Sample Scenario</title>
-<main>
-  <h1>Industrial Safety VR Trainer</h1>
-  <p>This browser sample illustrates the seeded project’s onboarding concept. It does not require a headset.</p>
-  <h2>Choose your first action</h2>
-  <p>During a simulated walkthrough, you spot a spill across the marked pedestrian route. What do you do?</p>
-  <details>
-    <summary>Walk around the spill and continue</summary>
-    <p>Try again. Continuing leaves the hazard unreported and other people may still enter the route.</p>
-  </details>
-  <details>
-    <summary>Stop clear of the spill and notify the site lead</summary>
-    <p>Correct. You avoid the hazard and alert the person who can secure the route and arrange cleanup.</p>
-  </details>
-  <p><a href="/demos/p01-safety-fallback.html">Read the scenario summary</a></p>
-  <p><a href="/projects/P01">Back to the project</a></p>
-</main>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Would you spot the hazard? · Industrial Safety VR Trainer</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/demos/p01-safety-demo.css">
+  <script src="/public-feedback.js" defer></script>
+  <script src="/demos/p01-safety-demo.js" defer></script>
+</head>
+<body>
+  <main class="scenario">
+    <a class="secondary-link scenario-back" href="/projects/P01">← Back to the project</a>
+    <header class="scenario-header">
+      <p class="eyebrow">Browser sample · Industrial onboarding</p>
+      <h1>Would you spot the hazard?</h1>
+      <p>Industrial Safety VR Trainer</p>
+    </header>
+    <figure class="scenario-scene">
+      <div class="preview-art">
+        <img src="/demos/p01-walkway.svg" width="640" height="332"
+          alt="Overhead view of a warehouse. A spill crosses the marked pedestrian lane between shelving and loading bays.">
+      </div>
+      <figcaption>Warehouse floor · Marked pedestrian route</figcaption>
+    </figure>
+    <section aria-labelledby="scenario-question">
+      <h2 id="scenario-question">Choose your first action</h2>
+      <p class="scenario-prompt">During a simulated walkthrough, you spot a spill across the marked pedestrian route. What do you do?</p>
+      <div class="scenario-choices" id="scenario-choices" role="group" aria-labelledby="scenario-question" hidden>
+        <button type="button" data-answer="continue" aria-pressed="false">Walk around the spill and continue</button>
+        <button type="button" data-answer="stop" aria-pressed="false">Stop clear of the spill and notify the site lead</button>
+      </div>
+      <div class="scenario-feedback" id="scenario-feedback" role="status" aria-live="polite" aria-atomic="true"></div>
+      <div class="scenario-next" id="scenario-next" hidden>
+        <button type="button" class="secondary" id="replay">Try again</button>
+        <a class="secondary-link" href="/projects/P01#contributors">Meet the team</a>
+      </div>
+      <a class="secondary-link scenario-summary" href="/demos/p01-safety-fallback.html">Read the scenario summary</a>
+    </section>
+    <p class="scenario-credit">Browser adaptation of the Industrial Safety VR Trainer course fixture.</p>
+  </main>
+</body>
 </html>

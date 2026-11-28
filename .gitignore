@@ -1,6 +1,11 @@
 # Dependencies
 node_modules/
 backend/node_modules/
+ecosystem/.next/
+ecosystem/out/
+ecosystem/generated/
+ecosystem/next-env.d.ts
+*.tsbuildinfo
 # Environment secrets
 .env
 .env.*

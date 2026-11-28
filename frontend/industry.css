@@ -13,3 +13,27 @@
 .industry .choice-list input { width:auto; }
 .industry .notice:empty { display:none; }
 .industry h2 { margin-top:1.5rem; }
+.collaboration-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 24px 0;
+}
+
+.collaboration-index a {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 1px solid #9fc4b8;
+  border-radius: 8px;
+  background: #eaf6f2;
+  color: #135342;
+  font-weight: 600;
+}
+.industry .collaboration-card .eyebrow {
+  margin: 0 0 4px;
+}
+
+.industry .collaboration-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}

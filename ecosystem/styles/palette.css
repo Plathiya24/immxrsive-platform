@@ -1,0 +1,144 @@
+@view-transition { navigation: auto; }
+
+.ecosystem-palette-trigger,
+.site-header .ecosystem-palette-trigger.secondary {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 11px;
+  border: 1px solid #cbd1d8;
+  border-radius: 999px;
+  background: #fff;
+  color: #111317;
+  cursor: pointer;
+  font: 650 .875rem/1.3 "Plus Jakarta Sans", system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.ecosystem-palette-trigger:hover,
+.site-header .ecosystem-palette-trigger.secondary:hover { background: #f3f5f6; color: #111317; }
+.ecosystem-palette-trigger:focus-visible { outline: 2px solid #c8102e; outline-offset: 3px; }
+.ecosystem-palette-trigger kbd { color: #4a505c; font: inherit; font-size: .68rem; }
+.ecosystem-search-icon {
+  position: relative;
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 3px;
+  border: 1.6px solid currentColor;
+  border-radius: 50%;
+}
+.ecosystem-search-icon::after {
+  content: "";
+  position: absolute;
+  inset: auto -4px -2px auto;
+  width: 5px;
+  height: 1.5px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+.has-ecosystem-search.site-header {
+  position: sticky;
+  z-index: 4;
+  top: 0;
+}
+
+@media (max-width: 700px) {
+  .has-ecosystem-search.site-header { gap: 4px 10px; padding-block: 10px; }
+  .has-ecosystem-search.site-header nav { order: 1; }
+  .ecosystem-palette-trigger { margin-inline-start: auto; }
+  .ecosystem-palette-trigger kbd { display: none; }
+}
+
+.ecosystem-palette {
+  width: min(92vw, 550px);
+  max-width: none;
+  max-height: 86dvh;
+  margin: min(10vh, 82px) auto auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: #111317;
+  font: 16px/1.5 "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.ecosystem-palette::backdrop { background: #11131742; }
+.ecosystem-palette-panel {
+  display: flex;
+  max-height: 86dvh;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #e1e4e8;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 16px 64px #11131730;
+}
+
+@supports (backdrop-filter: blur(16px)) {
+  .ecosystem-palette-panel {
+    background: rgb(255 255 255 / 91%);
+    backdrop-filter: blur(16px);
+  }
+}
+
+.ecosystem-palette-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ecosystem-palette h2 { margin: 0; font-size: 1.125rem; font-weight: 750; }
+.ecosystem-palette .ecosystem-palette-close {
+  min-height: 44px;
+  padding: 4px 9px;
+  border: 1px solid #cbd1d8;
+  border-radius: 8px;
+  background: #fff;
+  color: #0b554f;
+  cursor: pointer;
+  font: inherit;
+  font-size: .875rem;
+}
+.ecosystem-palette .ecosystem-palette-close:hover { background: #f3f5f6; color: #0b554f; }
+.ecosystem-palette input[type="search"] {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 12px;
+  border: 1px solid #737b88;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+.ecosystem-palette input:focus-visible,
+.ecosystem-palette button:focus-visible { outline: 2px solid #c8102e; outline-offset: 2px; }
+.ecosystem-palette-count { margin: 0; color: #4a505c; font-size: .8125rem; }
+.ecosystem-palette-results { min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.ecosystem-palette-results h3 {
+  margin: 10px 9px 3px;
+  color: #4a505c;
+  font-size: .75rem;
+  font-weight: 750;
+}
+.ecosystem-palette-option {
+  display: flex;
+  min-height: 44px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  border-inline-start: 3px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .9rem;
+  font-weight: 650;
+}
+.ecosystem-palette-option small { flex-shrink: 0; color: #4a505c; font-size: .7rem; }
+.ecosystem-palette-option[aria-selected="true"] { border-color: #c8102e; background: #fbe9ed; color: #8d1429; }
+
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 170ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+}

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 332">
+  <rect width="640" height="332" fill="#171c24"/>
+  <defs>
+    <pattern id="floor" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M24 0H0v24" fill="none" stroke="#333d4a" stroke-width="1"/>
+    </pattern>
+    <pattern id="stripe" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <path d="M0 0v10" fill="none" stroke="#ff98a8" stroke-opacity=".45" stroke-width="3"/>
+    </pattern>
+  </defs>
+  <rect x="14" y="14" width="612" height="304" rx="8" fill="url(#floor)" stroke="#667385"/>
+  <g fill="#232c38" stroke="#738092" stroke-width="2">
+    <path d="M40 37h210v57H40zM383 37h217v57H383zM40 238h210v57H40zM383 238h217v57H383z"/>
+    <path d="M66 48h32v35H66zM114 48h32v35h-32zM161 48h32v35h-32zM209 48h26v35h-26zM72 251h64v31H72zM152 251h64v31h-64z"/>
+    <path d="M414 49h66v34h-66zM503 49h65v34h-65zM414 250h66v34h-66zM503 250h65v34h-65z"/>
+  </g>
+  <g fill="none" stroke="#a3afbb" stroke-width="2">
+    <path d="M34 112h572M34 218h572"/>
+    <path d="M34 122h572M34 208h572" stroke-dasharray="11 9"/>
+    <path d="M53 164h74m-15-14 15 14-15 14M511 164h75m-15-14 15 14-15 14" stroke="#e0e6eb" stroke-width="3"/>
+    <path d="M45 26h32m-32 0v8m32-8v8m486 272h32m-32 0v-8m32 8v-8"/>
+  </g>
+  <path d="M284 112c-8-12-23-10-28 1-8 16 16 25 17 39 2 12-18 19-15 32 3 13 29 14 33 25 8 23 11 29 28 23 14-5 2-20 16-28 11-6 33-4 39-18 7-15-14-24-16-40-1-18 11-38-6-43-16-5-28 18-42 17-10 0-16-6-26-8z" fill="#632736" stroke="#ff98a8" stroke-width="3"/>
+  <path d="M284 112c-8-12-23-10-28 1-8 16 16 25 17 39 2 12-18 19-15 32 3 13 29 14 33 25 8 23 11 29 28 23 14-5 2-20 16-28 11-6 33-4 39-18 7-15-14-24-16-40-1-18 11-38-6-43-16-5-28 18-42 17-10 0-16-6-26-8z" fill="url(#stripe)"/>
+  <g font-family="system-ui, sans-serif" font-size="17" font-weight="650">
+    <text x="46" y="198" fill="#e0e6eb">Pedestrian route</text>
+    <path d="M367 142h41l13-13" fill="none" stroke="#ff98a8" stroke-width="2"/>
+    <text x="428" y="133" fill="#ffabb7">Spill</text>
+  </g>
+</svg>

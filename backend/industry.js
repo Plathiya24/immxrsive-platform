@@ -269,24 +269,37 @@ async function mountIndustry(app, store, auth, shared, catalogue, options = {}) 
 
   return {
     async projectStatus(id) {
-      const approved = (await requests()).filter(request => request.project_id === id && request.status === 'approved');
+      const [reviews, records, history] = await Promise.all([requests(), companies(), collaborations()]);
+      const approved = reviews.filter(request => request.project_id === id && request.status === 'approved');
       const partnerIds = new Set(approved.filter(request => request.type === 'partner').map(request => request.company_id));
+      const publicCompanies = new Map(records.filter(company => company.published).map(company => [company.id, company]));
+      // Limited entries deliberately omit their project relationships in the public partner view.
+      const publicCollaborations = history
+        .filter(row => row.visibility === 'public' && row.project_ids?.includes(id) && publicCompanies.has(row.company_id))
+        .map(row => ({
+          id: row.id, title: row.title, year: row.year, status: row.status,
+          partner: { id: row.company_id, name: publicCompanies.get(row.company_id).name }
+        }));
       return {
         institution_verified: approved.some(request => request.type === 'verification'),
-        partners: (await companies()).filter(company => company.published && partnerIds.has(company.id)).map(partnerCard)
+        partners: [...publicCompanies.values()].filter(company => partnerIds.has(company.id)).map(partnerCard),
+        collaborations: publicCollaborations
       };
     },
     async inquirySource(type, id) {
       if (type === 'partner') {
         const company = await get('r4_companies', id);
-        if (company?.published) return { id, name: company.name, path: '/partners/' + id };
+        if (company?.published) return { id, name: company.name, path: '/partners/' + encodeURIComponent(id) };
       }
       if (type === 'collaboration') {
         const row = await get('r4_collaborations', id);
         if (!row || row.visibility === 'private') return null;
         const partner = await partnerDetail(row.company_id);
         const publicRow = partner?.collaborations.find(item => item.id === id);
-        if (publicRow) return { id, name: publicRow.title, path: '/partners/' + partner.id + '#collaboration-' + id };
+        if (publicRow) return {
+          id, name: publicRow.title, partner: { id: partner.id, name: partner.name },
+          path: '/partners/' + encodeURIComponent(partner.id) + '#collaboration-' + encodeURIComponent(id)
+        };
       }
       return null;
     }

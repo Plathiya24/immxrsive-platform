@@ -1,0 +1,111 @@
+.scenario {
+  max-width: 680px;
+  margin-block: 16px 32px;
+}
+
+.scenario-header {
+  display: block;
+  padding: 0;
+  margin-block: 8px 16px;
+  background: transparent;
+  color: var(--ink);
+}
+
+.scenario-header h1 {
+  margin: 4px 0;
+  font: 400 clamp(40px, 8vw, 64px)/1 "Instrument Serif", Georgia, serif;
+}
+
+.scenario-header p,
+.scenario-prompt {
+  margin: 0;
+  color: var(--slate);
+}
+
+.scenario-header .eyebrow { color: var(--deep-teal); }
+
+.scenario-scene {
+  margin: 0 0 16px;
+  overflow: hidden;
+  border: 1px solid #343d4a;
+  border-radius: var(--media-radius);
+  background: #171c24;
+  color: #f4f6f9;
+}
+
+.scenario-scene figcaption {
+  padding: 8px 12px;
+  border-top: 1px solid #647080;
+  font-size: .875rem;
+}
+
+#scenario-question { margin: 0 0 8px; }
+
+.scenario-choices {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.scenario-choices[hidden], .scenario-next[hidden] { display: none; }
+
+.scenario-choices button:not(.secondary):not(.filter-chip) {
+  padding: 10px 14px;
+  border-color: var(--input-edge);
+  background: var(--gallery);
+  color: var(--ink);
+  text-align: left;
+}
+
+.scenario-choices button:not(.secondary):not(.filter-chip):hover {
+  background: #f2f5f7;
+}
+
+.scenario-choices button[aria-pressed="true"]:not(.secondary):not(.filter-chip) {
+  border-color: var(--deep-teal);
+  box-shadow: inset 4px 0 var(--deep-teal);
+  background: #eaf6f3;
+  color: var(--deep-teal);
+}
+
+.scenario-feedback:not(:empty) {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-inline-start: 3px solid var(--deep-teal);
+  border-radius: var(--control-radius);
+  background: #eaf6f3;
+}
+
+.scenario-feedback[data-outcome="continue"] {
+  border-color: var(--crimson);
+  background: #fff0f1;
+}
+
+.scenario-feedback p { margin: 2px 0 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .scenario-feedback > * { animation: scenario-feedback-in 160ms ease-out; }
+}
+
+@keyframes scenario-feedback-in {
+  from { opacity: .55; }
+  to { opacity: 1; }
+}
+
+.scenario-next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.scenario-next button { min-height: var(--touch-target); }
+
+.scenario-summary { margin-top: 4px; }
+
+.scenario-credit {
+  margin: 0;
+  color: var(--slate);
+  font-size: .8125rem;
+}
