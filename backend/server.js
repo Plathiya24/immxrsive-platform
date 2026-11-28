@@ -175,10 +175,14 @@ async function createApp(store, options = {}) {
  if (existsSync(ecosystemPage)) {
   app.use('/_next', express.static(path.join(ecosystem, 'out/_next'), { immutable: true, maxAge: '1y' }));
   app.use('/_ecosystem', express.static(path.join(ecosystem, 'generated')));
-  app.get('/ecosystem', (req, res) => {
+  app.get(['/ecosystem', '/ecosystem/records/:id'], (req, res, next) => {
+   const { id } = req.params;
+   if (id && !/^[a-z0-9-]+$/.test(id)) return next();
+   const page = id ? path.join(ecosystem, 'out/ecosystem/records', id + '.html') : ecosystemPage;
+   if (!existsSync(page)) return next();
    const policy = res.get('Content-Security-Policy');
    res.set('Content-Security-Policy', policy.replace("script-src 'self'", "script-src 'self' 'wasm-unsafe-eval'"));
-   res.sendFile(ecosystemPage);
+   res.sendFile(page);
   });
  } else {
   app.get(['/_ecosystem/bootstrap.js', '/_ecosystem/palette.css'], (req, res) => {

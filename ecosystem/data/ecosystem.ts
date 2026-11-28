@@ -1,6 +1,8 @@
 import type { EcosystemEntity } from "../types/ecosystem";
 
 // Illustrative relationships and statuses for the ecosystem preview.
+export const trainerId = "industrial-safety-vr-trainer";
+
 const records: Omit<EcosystemEntity, "href">[] = [
   {
     id: "computer-science",
@@ -16,7 +18,8 @@ const records: Omit<EcosystemEntity, "href">[] = [
     pillar: "xr-lab",
     status: "open",
     tags: ["Simulation", "Digital twins", "XR"],
-    connectedIds: ["computer-science", "gamejam-training", "altitude-venture", "altitude-visualization"],
+    summary: "This sample lab brief explores how a virtual model of a physical workspace could support XR training and scenario testing.",
+    connectedIds: ["computer-science", "gamejam-training", "altitude-venture", "altitude-visualization", trainerId],
   },
   {
     id: "gamejam-studio",
@@ -40,7 +43,8 @@ const records: Omit<EcosystemEntity, "href">[] = [
     pillar: "incubator",
     status: "cohort-active",
     tags: ["Startup", "Simulation", "Venture development"],
-    connectedIds: ["digital-twins", "gamejam-studio", "xr-partner"],
+    summary: "This sample venture brief explores adapting student-built simulations into onboarding pilots for industry partners.",
+    connectedIds: ["digital-twins", "gamejam-studio", "xr-partner", trainerId],
   },
   {
     id: "altitude-visualization",
@@ -58,6 +62,16 @@ const records: Omit<EcosystemEntity, "href">[] = [
     tags: ["Industry", "Pilots", "XR mentoring"],
     connectedIds: ["gamejam-training", "altitude-venture"],
   },
+  {
+    id: trainerId,
+    name: "Industrial Safety VR Trainer",
+    pillar: "talent",
+    status: "live",
+    tags: ["Student XR demo", "Industrial onboarding", "Safety simulation"],
+    summary: "A student project that uses a warehouse hazard scenario to demonstrate immersive safety training.",
+    connectedIds: ["digital-twins", "altitude-venture"],
+    resource: { href: "/projects/P01", label: "View project and demo" },
+  },
 ];
 
 export const ecosystemEntities: EcosystemEntity[] = records.map(record => ({
@@ -66,3 +80,7 @@ export const ecosystemEntities: EcosystemEntity[] = records.map(record => ({
 }));
 
 export const entityById = new Map(ecosystemEntities.map(entity => [entity.id, entity]));
+
+export function ecosystemRecordHref(entity: EcosystemEntity) {
+  return "/ecosystem/records/" + encodeURIComponent(entity.id);
+}
