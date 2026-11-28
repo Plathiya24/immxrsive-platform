@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node server.js",
+    "postinstall": "npm run build:ecosystem",
     "build:ecosystem": "npm ci --prefix ../ecosystem --include=dev && npm run build --prefix ../ecosystem",
     "test": "node --test",
     "seed": "node seed.js"

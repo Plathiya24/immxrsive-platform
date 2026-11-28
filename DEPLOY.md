@@ -13,9 +13,9 @@ The implementation was pushed to main and deployed successfully. Bikramjit repor
 
 ## Render configuration
 
-- Branch: main
+- Branch for Release 4: `codex/release-4`
 - Root Directory: backend
-- Build Command: `npm ci && npm run build:ecosystem`
+- Build Command: `npm ci` (the backend postinstall builds the ecosystem map and search assets)
 - Start Command: npm start
 - Recommended NODE_VERSION: 24.14.0
 - DATABASE_URL: your private persistent PostgreSQL connection string
